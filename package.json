@@ -1,0 +1,15 @@
+{
+    "name": "nourriture-platform-android",
+    "version": "0.0.1",
+    "description": "Nourriture platform offers the most granular information available about foods, ingredients, products and recipes for building nutrition and recipe-based apps by providing RESTful web services to food supplier and food consumer",
+    "author": "Nourriture (https://github.com/Nourriture)",
+    "keywords": ["food", "ingredients", "recipes", "platform"],
+    "repository" : {
+        "type": "git",
+        "url": "https://github.com/Nourriture/nourriture-platform-android.git"
+    },
+    "dependencies": {
+        "restify": "2.8.3"
+    },
+    "engines": { "node": "*" }
+}
