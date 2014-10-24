@@ -3,16 +3,18 @@
  * Module for consumer specific API calls.
  */
 
-var restify         = require('restify');
+var restify = require('restify');
 
 // Mock customer database
 var customers = [
     {
+        id: 0,
         name: "nielssj",
         fullname: "Niels Jensen",
         email: "nm@9la.dk"
     },
     {
+        id: 1,
         name: "ctverecek",
         fullname: "Pavel Prochazka",
         email: "pprochazka72@gmail.com"
@@ -21,7 +23,7 @@ var customers = [
 
 // Create - Customer profile
 function createConsumer(req, res, next) {
-    if(req.body) {
+    if (req.body) {
         customers.push(req.body);
         res.send(req.body);
         next();
@@ -34,7 +36,7 @@ function createConsumer(req, res, next) {
 function readConsumer(req, res, next) {
     for (var i = 0; i < customers.length; i++) {
         var customer = customers[i];
-        if(customer.name == req.params.name) {
+        if (customer.id == req.params.id) {
             res.send(customer);
             return;
         }
@@ -44,14 +46,14 @@ function readConsumer(req, res, next) {
 
 // Update - Customer profile
 function updateConsumer(req, res, next) {
-    if(!req.body) {
+    if (!req.body) {
         next(new restify.InvalidContentError("No user submitted for update"));
         return;
     }
 
     for (var i = 0; i < customers.length; i++) {
         var customer = customers[i];
-        if(customer.name == req.params.name) {
+        if (customer.name == req.params.name) {
             customers[i] = req.body;
             res.send(req.body);
             return;
@@ -65,7 +67,7 @@ function updateConsumer(req, res, next) {
 function deleteConsumer(req, res, next) {
     for (var i = 0; i < customers.length; i++) {
         var customer = customers[i];
-        if(customer.name == req.params.name) {
+        if (customer.name == req.params.name) {
             customers.splice(i, 1);
             res.send(customer);
             return;
@@ -81,8 +83,22 @@ function readAllConsumers(req, res, next) {
     next();
 };
 
-exports.createConsumer   = createConsumer;
-exports.readConsumer     = readConsumer;
-exports.readAllConsumers= readAllConsumers;
-exports.updateConsumer   = updateConsumer;
-exports.deleteConsumer   = deleteConsumer;
+// Search based on name - Customer profile
+function searchForConsumer(req, res, next) {
+    for (var i = 0; i < customers.length; i++) {
+        var customer = customers[i];
+        if (customer.name == req.params.name) {
+            res.send(customer);
+            return;
+        }
+    }
+    next(new restify.ResourceNotFoundError("No user found with the given username"));
+};
+
+exports.createConsumer = createConsumer;
+exports.readCustomer = readConsumer;
+exports.updateConsumer = updateConsumer;
+exports.deleteConsumer = deleteConsumer;
+
+exports.searchForConsumer = searchForConsumer;
+exports.readAllConsumers = readAllConsumers;
