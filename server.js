@@ -19,11 +19,14 @@ server.listen(8080, function () {
 
 //CONSUMER related API calls
 server.post('/consumer/:name', consumerModule.createConsumer);
-server.get('/consumer/:name', consumerModule.readConsumer);
-server.get('/consumer/',      consumerModule.readAllConsumers);
+server.get('/consumer/:id', consumerModule.readCustomer);
 server.put('/consumer/:name', consumerModule.updateConsumer);
 server.del('/consumer/:name', consumerModule.deleteConsumer);
 
+server.get('/consumer/:name', consumerModule.searchForConsumer);
+server.get('/consumer/',      consumerModule.readAllConsumers);
+//server.post('/consumer/:costumerForRelationship', consumerModule.)  //TODO: implement me!
+
 //MOMENT related API calls
-//server.post('/moment/', momentModule.createMoment);
-//server.get('')
+server.post('/moment/', momentModule.createMoment);
+server.get('/moment/:recipeId', momentModule.readAllMomentsForRecipe);
