@@ -82,16 +82,19 @@ module.exports = function (server, models) {
 
     // Delete - Customer profile
     server.del('/consumer/:name', function(req, res, next) {
-        for (var i = 0; i < customers.length; i++) {
-            var customer = customers[i];
-            if (customer.name == req.params.name) {
-                customers.splice(i, 1);
-                res.send(customer);
-                return;
+        models.Consumer.findOneAndRemove({ name:req.params.name }, req.body, function(err, deletedConsumer) {
+            if(!err) {
+                if(deletedConsumer) {
+                    res.send(deletedConsumer);
+                    next();
+                } else {
+                    next(new restify.ResourceNotFoundError("No user found with the given username"));
+                }
+            } else {
+                console.error("Failed to delete consumer profile from database:", err);
+                next(new restify.InternalError("Failed to delete consumer due to an unexpected internal error"));
             }
-        }
-
-        next(new restify.ResourceNotFoundError("No user found with the given username"));
+        });
     });
 
     // Reads (plural) - Customer profile
