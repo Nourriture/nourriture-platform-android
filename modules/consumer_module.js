@@ -24,14 +24,20 @@ var customers = [
 module.exports = function (server, models) {
 
     // Create - Customer profile
-    server.post('/consumer/:name', function(req, res, next) {
-        if (req.body) {
-            customers.push(req.body);
-            res.send(req.body);
-            next();
-        } else {
-            next(new restify.InvalidContentError("No user submitted for creation"));
-        }
+    server.post('/consumer', function(req, res, next) {
+        var newConsumer = new models.Consumer(req.body);
+
+        // TODO: Validate schema of user and throw appropriate error (InvalidContentError)
+
+        newConsumer.save(function (err) {
+           if(!err) {
+               res.send(req.body);
+               next();
+           } else {
+               console.log(err);
+               next(new restify.InternalError("Failed to insert user due to an unexpected internal error"));
+           }
+        });
     });
 
 
