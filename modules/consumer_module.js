@@ -65,16 +65,19 @@ module.exports = function (server, models) {
             return;
         }
 
-        for (var i = 0; i < customers.length; i++) {
-            var customer = customers[i];
-            if (customer.name == req.params.name) {
-                customers[i] = req.body;
-                res.send(req.body);
-                return;
+        models.Consumer.findOneAndUpdate({ name:req.params.name }, req.body, function(err, updatedConsumer) {
+            if(!err) {
+                if(updatedConsumer) {
+                    res.send(updatedConsumer);
+                    next();
+                } else {
+                    next(new restify.ResourceNotFoundError("No user found with the given username"));
+                }
+            } else {
+                console.error("Failed to update consumer profile in database:", err);
+                next(new restify.InternalError("Failed to update user due to an unexpected internal error"));
             }
-        }
-
-        next(new restify.ResourceNotFoundError("No user found with the given username"));
+        });
     });
 
     // Delete - Customer profile
