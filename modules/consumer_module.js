@@ -34,7 +34,7 @@ module.exports = function (server, models) {
                res.send(req.body);
                next();
            } else {
-               console.log(err);
+               console.error("Failed to insert consumer into database:", err);
                next(new restify.InternalError("Failed to insert user due to an unexpected internal error"));
            }
         });
@@ -98,6 +98,7 @@ module.exports = function (server, models) {
                 res.send(consumers);
                 next();
             } else {
+                console.error("Failed to read consumers from database:", err);
                 next(new restify.InternalError("Failed to insert user due to an unexpected internal error"));
             }
         });
