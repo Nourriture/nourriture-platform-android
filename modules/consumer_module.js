@@ -94,18 +94,6 @@ module.exports = function (server, models) {
         });
     });
 
-    // Search based on name - Customer profile
-    server.get('/consumer/:name', function(req, res, next) {
-        for (var i = 0; i < customers.length; i++) {
-            var customer = customers[i];
-            if (customer.name == req.params.name) {
-                res.send(customer);
-                return;
-            }
-        }
-        next(new restify.ResourceNotFoundError("No user found with the given username"));
-    });
-
     //server.post('/consumer/:costumerForRelationship', consumerModule.)  //TODO: implement me!
 };
 
