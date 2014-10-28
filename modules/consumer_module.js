@@ -5,22 +5,6 @@
 
 var restify = require('restify');
 
-// Mock customer database
-var customers = [
-    {
-        id: 0,
-        name: "nielssj",
-        fullname: "Niels Jensen",
-        email: "nm@9la.dk"
-    },
-    {
-        id: 1,
-        name: "ctverecek",
-        fullname: "Pavel Prochazka",
-        email: "pprochazka72@gmail.com"
-    }
-];
-
 module.exports = function (server, models) {
 
     // Create - Customer profile
