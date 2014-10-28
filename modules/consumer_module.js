@@ -42,15 +42,20 @@ module.exports = function (server, models) {
 
 
     // Read - Customer profile
-    server.get('/consumer/:id', function(req, res, next) {
-        for (var i = 0; i < customers.length; i++) {
-            var customer = customers[i];
-            if (customer.id == req.params.id) {
-                res.send(customer);
-                return;
+    server.get('/consumer/:name', function(req, res, next) {
+        models.Consumer.find({ name:req.params.name }, { "_id":0 }, function(err, consumer) {
+            if(!err) {
+                if(consumer.length != 0) {
+                    res.send(consumer);
+                    next();
+                } else {
+                    next(new restify.ResourceNotFoundError("No users found with the given username"));
+                }
+            } else {
+                console.error("Failed to query database for consumer profile:", err);
+                next(new restify.InternalError("Failed to insert user due to an unexpected internal error"));
             }
-        }
-        next(new restify.ResourceNotFoundError("No user found with the given username"));
+        });
     });
 
     // Update - Customer profile
