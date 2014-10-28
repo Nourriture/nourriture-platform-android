@@ -11,7 +11,7 @@ var server = restify.createServer({ name: 'Nourriture Android backed server', ve
 
 var port = 8080;
 if (process.argv[2]) {
-    var port = parseInt(process.argv[2]);
+    port = parseInt(process.argv[2]);
 }
 
 server.use(restify.fullResponse());
