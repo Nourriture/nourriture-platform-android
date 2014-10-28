@@ -9,10 +9,15 @@ var momentModule    = require('./modules/moment_module');
 
 var server = restify.createServer({ name: 'Nourriture Android backed server', version: '0.0.1' });
 
+var port = 8080;
+if (process.argv[2]) {
+    var port = parseInt(process.argv[2]);
+}
+
 server.use(restify.fullResponse());
 server.use(restify.bodyParser());
 
-server.listen(8080, function () {
+server.listen(port, function () {
     console.log('- - - %s listening at %s - - -', server.name, server.url);
     require('./utilities/document')(server.router.mounts, 'restify');
 });
