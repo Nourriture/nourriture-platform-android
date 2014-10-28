@@ -82,8 +82,14 @@ module.exports = function (server, models) {
 
     // Reads (plural) - Customer profile
     server.get('/consumer/', function(req, res, next) {
-        res.send(customers);
-        next();
+        models.Consumer.find(null, { "_id":0 }, function(err, consumers) {
+            if(!err) {
+                res.send(consumers);
+                next();
+            } else {
+                next(new restify.InternalError("Failed to insert user due to an unexpected internal error"));
+            }
+        });
     });
 
     // Search based on name - Customer profile
