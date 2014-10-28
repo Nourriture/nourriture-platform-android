@@ -49,7 +49,7 @@ module.exports = function (server, models) {
             return;
         }
 
-        models.Consumer.findOneAndUpdate({ name:req.params.name }, req.body, function(err, updatedConsumer) {
+        models.Consumer.findOneAndUpdate({ name:req.params.name }, req.body, { "select": { "_id": 0} }, function(err, updatedConsumer) {
             if(!err) {
                 if(updatedConsumer) {
                     res.send(updatedConsumer);
@@ -66,7 +66,7 @@ module.exports = function (server, models) {
 
     // Delete - Customer profile
     server.del('/consumer/:name', function(req, res, next) {
-        models.Consumer.findOneAndRemove({ name:req.params.name }, req.body, function(err, deletedConsumer) {
+        models.Consumer.findOneAndRemove({ name:req.params.name }, { "select": { "_id": 0} }, function(err, deletedConsumer) {
             if(!err) {
                 if(deletedConsumer) {
                     res.send(deletedConsumer);
