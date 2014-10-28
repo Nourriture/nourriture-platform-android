@@ -19,7 +19,7 @@ if (process.argv[2]) {
 }
 
 server.use(restify.fullResponse());
-server.use(restify.bodyParser( { mapParams: false } ));
+server.use(restify.bodyParser());
 
 // Server startup function, should be run when all routes have been registered and we are ready to listen
 var startServer = function() {
