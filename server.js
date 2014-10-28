@@ -4,7 +4,8 @@
  */
 
 var restify         = require('restify');
-var consumerModule  = require('./modules/consumer_module');
+var mongoose        = require("mongoose");
+var models          = require("./modules/models")(mongoose);
 var momentModule    = require('./modules/moment_module');
 
 var server = restify.createServer({ name: 'Nourriture Android backed server', version: '0.0.1' });
@@ -22,15 +23,9 @@ server.listen(port, function () {
     require('./utilities/document')(server.router.mounts, 'restify');
 });
 
-//CONSUMER related API calls
-server.post('/consumer/:name', consumerModule.createConsumer);
-server.get('/consumer/:id', consumerModule.readCustomer);
-server.put('/consumer/:name', consumerModule.updateConsumer);
-server.del('/consumer/:name', consumerModule.deleteConsumer);
 
-server.get('/consumer/:name', consumerModule.searchForConsumer);
-server.get('/consumer/',      consumerModule.readAllConsumers);
-//server.post('/consumer/:costumerForRelationship', consumerModule.)  //TODO: implement me!
+//CONSUMER related API calls
+var consumerModule  = require('./modules/consumer_module')(server, models);
 
 //MOMENT related API calls
 server.post('/moment/', momentModule.createMoment);
