@@ -4,25 +4,63 @@
  */
 
 module.exports = function (mongoose) {
+    // Custom length validator for strings
+    function strLength(max) {
+        return [
+            function(v) { return v < max; },
+            "Only " + max + " characters are allowed"
+        ];
+    }
 
     // CONSUMER
     var Consumer = mongoose.Schema({
-        name: String,
-        fullname: String,
-        email: String
+        created: { type: Date, required: true },
+        modified: { type: Date, required: true },
+        email: { type: String, validate: strLength(128) },
+        name: { type: String, validate: strLength(64), required: true },
+        picture: { type: String, validate: strLength(512) },
+        bio: { type: String, validate: strLength(4096) },
+        occupation: { type: String, validate: strLength(128) },
+        gender: { type: Number, min: 0, max: 2 },
+        birthday: Date,
+        website: { type: String, validate: strLength(512) }
     });
 
     // MOMENT
+    var Like = mongoose.Schema( {
+       created: { type: Date, required: true },
+       author: { type: Consumer, ref: "Consumer", required: true}
+    });
+    var Comment = mongoose.Schema({
+       created: { type: Date, required: true},
+       author: { type: Consumer, ref: "Consumer", required: true},
+       text: { type: String, validate: strLength(1024)},
+       likes: [Like]
+    });
     var Moment = mongoose.Schema({
-       title: String
+        created: { type: Date, required: true },
+        author: { type: Consumer, ref: "Consumer", required: true },
+        modified: { type: Date, required: true },
+        text: { type: String, validate: strLength(1024) },
+        subjectID: String,       // NOTE: Referring to recipe, ingredient, gastronomist or company in Nourriture (3rd party)
+        likes: [Like],
+        comment: [Comment]
+    });
+
+    // RATING
+    var Rating = mongoose.Schema({
+        created: { type: Date, required: true },
+        author: { type: Consumer, ref: "Consumer", required: true },
+        value: { type: Number, min: 1, max: 6 },
+        difficulty: { type: Number, min: 1, max: 6},
+        subjectID: { type: String, required: true}      // NOTE: Referring to recipe, ingredient, gastronomist or company in Nourriture (3rd party)
     });
 
 
     // Bind to DB collection names and return on single object
-    var models = {
+    return {
         Consumer: mongoose.model("consumer", Consumer),
-        Moment: mongoose.model("moment", Moment)
+        Moment: mongoose.model("moment", Moment),
+        Rating: mongoose.model("rating", Rating)
     };
-
-    return models;
 };
