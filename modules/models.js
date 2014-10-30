@@ -29,7 +29,7 @@ module.exports = function (mongoose) {
         created: { type: Date, required: true },
         modified: { type: Date, required: true },
         username: { type: String, required: true},
-        email: { type: String, validate: strLength(128) },
+        email: { type: String, validate: strLength(128), required:true },
         name: { type: String, validate: strLength(64), required: true },
         picture: { type: String, validate: strLength(512) },
         bio: { type: String, validate: strLength(4096) },
