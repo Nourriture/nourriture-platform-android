@@ -38,17 +38,17 @@ module.exports = function (mongoose) {
     // MOMENT
     var Like = mongoose.Schema( {
        created: { type: Date, required: true },
-       author: { type: Consumer, ref: "Consumer", required: true}
+       author: { type: mongoose.Schema.Types.ObjectId, ref: "Consumer", required: true}
     });
     var Comment = mongoose.Schema({
        created: { type: Date, required: true},
-       author: { type: Consumer, ref: "Consumer", required: true},
+       author: { type: mongoose.Schema.Types.ObjectId, ref: "Consumer", required: true},
        text: { type: String, validate: strLength(1024)},
        likes: [Like]
     });
     var Moment = mongoose.Schema({
         created: { type: Date, required: true },
-        author: { type: Consumer, ref: "Consumer", required: true },
+        author: { type: mongoose.Schema.Types.ObjectId, ref: "Consumer", required: true },
         modified: { type: Date, required: true },
         text: { type: String, validate: strLength(1024) },
         subjectID: String,       // NOTE: Referring to recipe, ingredient, gastronomist or company in Nourriture (3rd party)
@@ -60,7 +60,7 @@ module.exports = function (mongoose) {
     // RATING
     var Rating = mongoose.Schema({
         created: { type: Date, required: true },
-        author: { type: Consumer, ref: "Consumer", required: true },
+        author: { type: mongoose.Schema.Types.ObjectId, ref: "Consumer", required: true },
         value: { type: Number, min: 1, max: 6 },
         difficulty: { type: Number, min: 1, max: 6},
         subjectID: { type: String, required: true}      // NOTE: Referring to recipe, ingredient, gastronomist or company in Nourriture (3rd party)
