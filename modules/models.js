@@ -7,7 +7,12 @@ module.exports = function (mongoose) {
     // Custom length validator for strings
     function strLength(max) {
         return [
-            function(v) { return v.length < max; },
+            function(v) {
+                if(v) {
+                    return v.length < max;
+                }
+                return true;
+            },
             "Only " + max + " characters are allowed"
         ];
     }
