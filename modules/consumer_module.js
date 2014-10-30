@@ -18,8 +18,12 @@ module.exports = function (server, models) {
                res.send(req.body);
                next();
            } else {
-               console.error("Failed to insert consumer into database:", err);
-               next(new restify.InternalError("Failed to insert user due to an unexpected internal error"));
+               if(err.name == "ValidationError") {
+                   next(new restify.InvalidContentError(err.toString()));
+               } else {
+                   console.error("Failed to insert consumer into database:", err);
+                   next(new restify.InternalError("Failed to insert user due to an unexpected internal error"));
+               }
            }
         });
     });
@@ -60,8 +64,12 @@ module.exports = function (server, models) {
                     next(new restify.ResourceNotFoundError("No user found with the given username"));
                 }
             } else {
-                console.error("Failed to update consumer profile in database:", err);
-                next(new restify.InternalError("Failed to update user due to an unexpected internal error"));
+                if(err.name == "ValidationError") {
+                    next(new restify.InvalidContentError(err.toString()));
+                } else {
+                    console.error("Failed to update consumer profile in database:", err);
+                    next(new restify.InternalError("Failed to update user due to an unexpected internal error"));
+                }
             }
         });
     });
