@@ -48,28 +48,45 @@ module.exports = function (server, models) {
 
     // Update - Customer profile
     server.put('/consumer/:username', function(req, res, next) {
+        // If empty body, abort without even making DB connection
         if (!req.body) {
             next(new restify.InvalidContentError("No user submitted for update"));
             return;
         }
 
-        req.body.modified = new Date; // Normally automatic, but since we do actual update db-side the middleware won't be run
-
-        models.Consumer.findOneAndUpdate({ username:req.params.username }, req.body, { "select": { "_id": 0} }, function(err, updatedConsumer) {
+        // Retrieve existing user, overwrite fields, validate and save
+        models.Consumer.find({ username:req.params.username }, { "_id":0 }, function(err, result) {
             if(!err) {
-                if(updatedConsumer) {
-                    res.send(updatedConsumer);
-                    next();
+                if(result.length != 0) {
+                    var consumer = result[0];
+
+                    // Overwrite fields with value from request body
+                    for (var key in req.body) {
+                        consumer[key] = req.body[key];
+                    }
+
+                    // Validate and save
+                    consumer.save(function (err) {
+                        if(!err) {
+                            res.send(consumer);
+                            next();
+                        } else {
+                            if(err.name == "ValidationError") {
+                                next(new restify.InvalidContentError(err.toString()));
+                            } else {
+                                console.error("Failed to insert consumer into database:", err);
+                                next(new restify.InternalError("Failed to insert user due to an unexpected internal error"));
+                            }
+                        }
+                    });
                 } else {
-                    next(new restify.ResourceNotFoundError("No user found with the given username"));
+                    // No user found with given username
+                    next(new restify.ResourceNotFoundError("No users found with the given username"));
                 }
             } else {
-                if(err.name == "ValidationError") {
-                    next(new restify.InvalidContentError(err.toString()));
-                } else {
-                    console.error("Failed to update consumer profile in database:", err);
-                    next(new restify.InternalError("Failed to update user due to an unexpected internal error"));
-                }
+                // Database connection error
+                console.error("Failed to query database for consumer profile:", err);
+                next(new restify.InternalError("Failed to insert user due to an unexpected internal error"));
             }
         });
     });
