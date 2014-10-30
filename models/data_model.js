@@ -1,6 +1,6 @@
 /**
  * Created by niels on 10/28/14.
- * Mongoose data models for the Android application backend
+ * Mongoose data model definitions for the application backend
  */
 
 var util = require('./data_model_middleware');
