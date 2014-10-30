@@ -23,6 +23,7 @@ module.exports = function (mongoose) {
     var Consumer = mongoose.Schema({
         created: { type: Date, required: true },
         modified: { type: Date, required: true },
+        username: { type: String, required: true},
         email: { type: String, validate: strLength(128) },
         name: { type: String, validate: strLength(64), required: true },
         picture: { type: String, validate: strLength(512) },

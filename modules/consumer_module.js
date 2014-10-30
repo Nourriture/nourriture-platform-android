@@ -26,8 +26,8 @@ module.exports = function (server, models) {
 
 
     // Read - Customer profile
-    server.get('/consumer/:name', function(req, res, next) {
-        models.Consumer.find({ name:req.params.name }, { "_id":0 }, function(err, consumer) {
+    server.get('/consumer/:username', function(req, res, next) {
+        models.Consumer.find({ username:req.params.username }, { "_id":0 }, function(err, consumer) {
             if(!err) {
                 if(consumer.length != 0) {
                     res.send(consumer);
@@ -43,7 +43,7 @@ module.exports = function (server, models) {
     });
 
     // Update - Customer profile
-    server.put('/consumer/:name', function(req, res, next) {
+    server.put('/consumer/:username', function(req, res, next) {
         if (!req.body) {
             next(new restify.InvalidContentError("No user submitted for update"));
             return;
@@ -65,8 +65,8 @@ module.exports = function (server, models) {
     });
 
     // Delete - Customer profile
-    server.del('/consumer/:name', function(req, res, next) {
-        models.Consumer.findOneAndRemove({ name:req.params.name }, { "select": { "_id": 0} }, function(err, deletedConsumer) {
+    server.del('/consumer/:username', function(req, res, next) {
+        models.Consumer.findOneAndRemove({ username:req.params.username }, { "select": { "_id": 0} }, function(err, deletedConsumer) {
             if(!err) {
                 if(deletedConsumer) {
                     res.send(deletedConsumer);
