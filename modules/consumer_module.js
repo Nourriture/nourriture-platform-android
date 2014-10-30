@@ -11,8 +11,6 @@ module.exports = function (server, models) {
     server.post('/consumer', function(req, res, next) {
         var newConsumer = new models.Consumer(req.body);
 
-        // TODO: Validate schema of user and throw appropriate error (InvalidContentError)
-
         newConsumer.save(function (err) {
            if(!err) {
                res.send(req.body);
