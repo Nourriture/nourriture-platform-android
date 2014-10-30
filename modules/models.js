@@ -12,6 +12,13 @@ module.exports = function (mongoose) {
         ];
     }
 
+    // middleware for automatically updating timestamps ("created" and "modified")
+    function updateTimeStamps(next, done) {
+        if (!this.created) this.created = new Date;
+        this.modified = new Date;
+        next(); done();
+    }
+
     // CONSUMER
     var Consumer = mongoose.Schema({
         created: { type: Date, required: true },
@@ -25,6 +32,7 @@ module.exports = function (mongoose) {
         birthday: Date,
         website: { type: String, validate: strLength(512) }
     });
+    Consumer.pre('validate', true, updateTimeStamps);
 
     // MOMENT
     var Like = mongoose.Schema( {
@@ -46,6 +54,7 @@ module.exports = function (mongoose) {
         likes: [Like],
         comment: [Comment]
     });
+    Moment.pre('validate', true, updateTimeStamps);
 
     // RATING
     var Rating = mongoose.Schema({
@@ -55,6 +64,7 @@ module.exports = function (mongoose) {
         difficulty: { type: Number, min: 1, max: 6},
         subjectID: { type: String, required: true}      // NOTE: Referring to recipe, ingredient, gastronomist or company in Nourriture (3rd party)
     });
+    Rating.pre('validate', true, updateTimeStamps);
 
 
     // Bind to DB collection names and return on single object
