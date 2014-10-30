@@ -49,7 +49,9 @@ module.exports = function (server, models) {
             return;
         }
 
-        models.Consumer.findOneAndUpdate({ name:req.params.name }, req.body, { "select": { "_id": 0} }, function(err, updatedConsumer) {
+        req.body.modified = new Date; // Normally automatic, but since we do actual update db-side the middleware won't be run
+
+        models.Consumer.findOneAndUpdate({ username:req.params.username }, req.body, { "select": { "_id": 0} }, function(err, updatedConsumer) {
             if(!err) {
                 if(updatedConsumer) {
                     res.send(updatedConsumer);
