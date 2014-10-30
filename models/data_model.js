@@ -3,7 +3,7 @@
  * Mongoose data models for the Android application backend
  */
 
-var util = require('../models/data_model_middleware');
+var util = require('data_model_middleware');
 
 module.exports = function (mongoose) {
 

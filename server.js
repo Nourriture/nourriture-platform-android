@@ -5,7 +5,7 @@
 
 var restify         = require('restify');
 var mongoose        = require("mongoose");
-var models          = require("./modules/models")(mongoose);
+var models          = require("./models/data_model")(mongoose);
 var momentModule    = require('./modules/moment_module');
 
 var server = restify.createServer({ name: 'Nourriture Android backed server', version: '0.0.1' });
