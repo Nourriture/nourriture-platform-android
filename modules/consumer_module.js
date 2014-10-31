@@ -119,6 +119,23 @@ module.exports = function (server, models) {
         });
     });
 
+
+    server.get("/consumer/:username/following", function (req, res, next) {
+        models.Consumer.findOne({ username:req.params.username }, { "following":1 }, function(err, consumer) {
+            if(!err) {
+                if(consumer) {
+                    res.send(consumer.following);
+                    next();
+                } else {
+                    next(new restify.ResourceNotFoundError("No consumer found with the given username"));
+                }
+            } else {
+                console.error("Failed to query database for consumer profile:", err);
+                next(new restify.InternalError("Failed to retrieve follow data due to an unexpected internal error"));
+            }
+        });
+    });
+
     //server.post('/consumer/:costumerForRelationship', consumerModule.)  //TODO: implement me!
 };
 
