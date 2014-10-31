@@ -4,6 +4,7 @@
  */
 
 var restify = require('restify');
+var _ = require('lodash');
 
 module.exports = function (server, models) {
 
