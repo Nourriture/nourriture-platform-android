@@ -8,7 +8,17 @@
         "occupation" : "Software Developer",
         "gender" : 1,
         "birthday" : "1991-04-19",
-        "website" : "https://www.facebook.com/nielsjensen"
+        "website" : "https://www.facebook.com/nielsjensen",
+        "following" : [
+            {
+                "created" : "2014-10-29",
+                "consumer": "5451b1fb84c3f4061a5f4996"
+            },
+            {
+                "created" : "2014-10-31",
+                "consumer": "545325dd0a3aae73179954e4"
+            }
+        ]
     },
     {
         "username" : "ctverecek",
