@@ -20,5 +20,12 @@
         "gender" : 1,
         "birthday" : "1991-09-06",
         "website" : "https://www.facebook.com/pavel.prochy"
+    },
+    {
+        "username" : "arnaudkevin",
+        "name" : "Arnaud Kevin",
+        "email" : "arnaudkevein@github.com",
+        "picture" : "https://avatars3.githubusercontent.com/u/5804525?v=2&s=460",
+        "gender" : 1
     }
 ]
