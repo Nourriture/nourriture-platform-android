@@ -137,6 +137,51 @@ module.exports = function (server, models) {
         });
     });
 
+    // Create - Following relation from this consumer to another consumer
+    server.post("/consumer/:username/following", function (req, res, next) {
+        models.Consumer.findOne({ username:req.params.username }, { "following":1 }, function(err, consumer) {
+            // Did the database lookup query succeed?
+            if(!err) {
+                // Did we find a consumer with the given username?
+                if(consumer) {
+                    // Is this consumer not following this other consumer already?
+                    var alreadyFollowing = _.any(consumer.following, function(item) {
+                       return item.consumer.toString() == req.body.consumer;
+                    });
+                    if(!alreadyFollowing) {
+                        // Add timestamp and push relation to consumer
+                        req.body.created = new Date;
+                        consumer.following.push(req.body);
+
+                        // Attempt to save the modified consumer
+                        consumer.save(function (err) {
+                            // Did save succeed?
+                            if(!err) {
+                                res.send(req.body);
+                                next();
+                            } else {
+                                // Did save fail due to a validation error or unexpected error?
+                                if(err.name == "ValidationError") {
+                                    next(new restify.InvalidContentError(err.toString()));
+                                } else {
+                                    console.error("Failed to insert consumer into database:", err);
+                                    next(new restify.InternalError("Failed to insert user due to an unexpected internal error"));
+                                }
+                            }
+                        });
+                    } else {
+                        next(new restify.InvalidContentError("Consumer already following this other consumer"));
+                    }
+                } else {
+                    next(new restify.ResourceNotFoundError("No users found with the given username"));
+                }
+            } else {
+                console.error("Failed to query database for consumer profile:", err);
+                next(new restify.InternalError("Failed to insert follow relationship due to an unexpected internal error"));
+            }
+        });
+    });
+
     //server.post('/consumer/:costumerForRelationship', consumerModule.)  //TODO: implement me!
 };
 
