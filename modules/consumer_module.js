@@ -8,7 +8,7 @@ var _ = require('lodash');
 
 module.exports = function (server, models) {
 
-    // Create - Customer profile
+    // Create - Consumer profile
     server.post('/consumer', function(req, res, next) {
         var newConsumer = new models.Consumer(req.body);
 
@@ -27,8 +27,7 @@ module.exports = function (server, models) {
         });
     });
 
-
-    // Read - Customer profile
+    // Read - Consumer profile
     server.get('/consumer/:username', function(req, res, next) {
         models.Consumer.find({ username:req.params.username }, { "_id":0 }, function(err, consumer) {
             if(!err) {
@@ -45,7 +44,7 @@ module.exports = function (server, models) {
         });
     });
 
-    // Update - Customer profile
+    // Update - Consumer profile
     server.put('/consumer/:username', function(req, res, next) {
         // If empty body, abort without even making DB connection
         if (!req.body) {
@@ -90,7 +89,7 @@ module.exports = function (server, models) {
         });
     });
 
-    // Delete - Customer profile
+    // Delete - Consumer profile
     server.del('/consumer/:username', function(req, res, next) {
         models.Consumer.findOneAndRemove({ username:req.params.username }, { "select": { "_id": 0} }, function(err, deletedConsumer) {
             if(!err) {
@@ -107,7 +106,7 @@ module.exports = function (server, models) {
         });
     });
 
-    // Reads (plural) - Customer profile
+    // Reads (plural) - Consumer profile
     server.get('/consumer/', function(req, res, next) {
         models.Consumer.find(null, { "_id":0 }, function(err, consumers) {
             if(!err) {
@@ -120,7 +119,7 @@ module.exports = function (server, models) {
         });
     });
 
-
+    // Read - Follow relations of a specific consumer
     server.get("/consumer/:username/following", function (req, res, next) {
         models.Consumer.findOne({ username:req.params.username }, { "following":1 }, function(err, consumer) {
             if(!err) {
@@ -181,7 +180,5 @@ module.exports = function (server, models) {
             }
         });
     });
-
-    //server.post('/consumer/:costumerForRelationship', consumerModule.)  //TODO: implement me!
 };
 
