@@ -8,6 +8,10 @@ var util = require('./data_model_middleware');
 module.exports = function (mongoose) {
 
     // CONSUMER
+    var FollowRelation = mongoose.Schema( {
+        created: { type: Date, required: true },
+        consumer: { type: mongoose.Schema.Types.ObjectId, ref: "consumer", required: true}
+    });
     var Consumer = mongoose.Schema({
         created: { type: Date, required: true },
         modified: { type: Date, required: true },
@@ -19,7 +23,8 @@ module.exports = function (mongoose) {
         occupation: { type: String, validate: util.strLength(128) },
         gender: { type: Number, min: 0, max: 2 },
         birthday: Date,
-        website: { type: String, validate: util.strLength(512) }
+        website: { type: String, validate: util.strLength(512) },
+        following: [FollowRelation]
     });
     Consumer.pre('validate', true, util.updateTimeStamps);
 
