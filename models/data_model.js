@@ -46,7 +46,7 @@ module.exports = function (mongoose) {
         text: { type: String, validate: util.strLength(1024) },
         subjectID: String,       // NOTE: Referring to recipe, ingredient, gastronomist or company in Nourriture (3rd party)
         likes: [Like],
-        comment: [Comment]
+        comments: [Comment]
     });
     Moment.pre('validate', true, util.updateTimeStamps);
 
