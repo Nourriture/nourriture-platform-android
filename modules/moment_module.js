@@ -93,35 +93,23 @@ module.exports = function (server, models) {
 
     // Create - Comment (to moment)
     server.post('/moment/:id/comment', function (req, res, next) {
-        models.Moment.findOne({ "_id":req.params.id}, function(err, moment) {
+        // Validate comment and add created time
+        var newComment = new models.Comment(req.body);
+        newComment.created = new Date;
+        newComment.validate(function(err) {
             if(!err) {
-                if(moment) {
-                    req.body.created = new Date;
-                    if(moment.comments) {
-                        moment.comments.push(req.body);
+                // Do actual insertion
+                models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$push": { "comments": newComment._doc } }, function(err) {
+                    if(!err) {
+                        res.send(newComment);
+                        next();
                     } else {
-                        moment.comments = [req.body];
+                        console.error("Failed to update moment in database:", err);
+                        next(new restify.InternalError("Failed to insert comment due to an unexpected internal error"))
                     }
-
-                    moment.save(function (err) {
-                        if (!err) {
-                            res.send(req.body);
-                            next();
-                        } else {
-                            if (err.name == "ValidationError") {
-                                next(new restify.InvalidContentError(err.toString()));
-                            } else {
-                                console.error("Failed to update moment in database:", err);
-                                next(new restify.InternalError("Failed to insert comment due to an unexpected internal error"));
-                            }
-                        }
-                    });
-                } else {
-                    next(new restify.ResourceNotFoundError("No moment found with the given id"));
-                }
+                });
             } else {
-                console.error("Failed to query database for specific moment:", err);
-                next(new restify.InternalError("Failed to insert comment due to an unexpected internal error"));
+                next(new restify.InvalidContentError(err.toString()));
             }
         });
     });
