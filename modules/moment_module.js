@@ -130,4 +130,28 @@ module.exports = function (server, models) {
             }
         });
     });
+
+    // Create - Like (to moment)
+    server.post('/moment/:id/like', function (req, res, next) {
+        // TODO: Do prober validation of ObjectId by comparing to current authenticated user. Validate both authorization and type.
+        var valid = req.body;
+
+        if(valid) {
+            models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$addToSet": { "likes": req.body } }, function(err, moment) {
+                if(!err) {
+                    if(moment) {
+                        res.send(moment);
+                        next();
+                    } else {
+                        next(new restify.ResourceNotFoundError("No moment found with the given id"));
+                    }
+                } else {
+                    console.error("Failed to update moment in database:", err);
+                    next(new restify.InternalError("Failed to insert like due to an unexpected internal error"))
+                }
+            });
+        } else {
+            next(new restify.InvalidContentError("Invalid ObjectId"));
+        }
+    });
 };
