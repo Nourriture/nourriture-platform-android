@@ -43,6 +43,11 @@ module.exports = function (server, models) {
         });
     });
 
+    // Update - Moment
+    server.put('/moment/:id', function(req, res, next) {
+       next(new restify.NotAuthorizedError("Currently consumers are not authorized to update moment, not even their own, sorry."));
+    });
+
     // Delete - Moment
     server.del('/moment/:id', function(req, res, next) {
         models.Moment.findOneAndRemove({ "_id":req.params.id }, function(err, deletedMoment) {
