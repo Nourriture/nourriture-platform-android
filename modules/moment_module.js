@@ -116,32 +116,11 @@ module.exports = function (server, models) {
 
     // Delete - Comment (from moment)
     server.del('/moment/:id/comment/:cid', function (req, res, next) {
-        models.Moment.findOne({ "_id":req.params.id}, function(err, moment) {
+        models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$pull": { "comments": { "_id": req.params.cid } } }, function(err, moment) {
             if(!err) {
                 if(moment) {
-                    // Remove comment from moment
-                    var removedComment = _.remove(moment.comments, function(val) {
-                        return val["_id"] == req.params.cid;
-                    });
-
-                    if(moment.comments.length == 0) {
-                        moment.comments = null;
-                    }
-
-                    // Save modified moment
-                    moment.save(function (err) {
-                        if (!err) {
-                            res.send(removedComment[0]);
-                            next();
-                        } else {
-                            if (err.name == "ValidationError") {
-                                next(new restify.InvalidContentError(err.toString()));
-                            } else {
-                                console.error("Failed to update moment in database:", err);
-                                next(new restify.InternalError("Failed to insert comment due to an unexpected internal error"));
-                            }
-                        }
-                    });
+                    res.send(moment);
+                    next();
                 } else {
                     next(new restify.ResourceNotFoundError("No moment found with the given id"));
                 }
