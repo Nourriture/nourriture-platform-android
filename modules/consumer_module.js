@@ -29,7 +29,7 @@ module.exports = function (server, models) {
 
     // Read - Consumer profile
     server.get('/consumer/:username', function(req, res, next) {
-        models.Consumer.find({ username:req.params.username }, { "_id":0 }, function(err, consumer) {
+        models.Consumer.find({ username:req.params.username }, function(err, consumer) {
             if(!err) {
                 if(consumer.length != 0) {
                     res.send(consumer);
@@ -53,7 +53,7 @@ module.exports = function (server, models) {
         }
 
         // Retrieve existing user, overwrite fields, validate and save
-        models.Consumer.find({ username:req.params.username }, { "_id":0 }, function(err, result) {
+        models.Consumer.find({ username:req.params.username }, function(err, result) {
             if(!err) {
                 if(result.length != 0) {
                     var consumer = result[0];
@@ -91,7 +91,7 @@ module.exports = function (server, models) {
 
     // Delete - Consumer profile
     server.del('/consumer/:username', function(req, res, next) {
-        models.Consumer.findOneAndRemove({ username:req.params.username }, { "select": { "_id": 0} }, function(err, deletedConsumer) {
+        models.Consumer.findOneAndRemove({ username:req.params.username }, function(err, deletedConsumer) {
             if(!err) {
                 if(deletedConsumer) {
                     res.send(deletedConsumer);
@@ -108,7 +108,7 @@ module.exports = function (server, models) {
 
     // Reads (plural) - Consumer profile
     server.get('/consumer/', function(req, res, next) {
-        models.Consumer.find(null, { "_id":0 }, function(err, consumers) {
+        models.Consumer.find(function(err, consumers) {
             if(!err) {
                 res.send(consumers);
                 next();
