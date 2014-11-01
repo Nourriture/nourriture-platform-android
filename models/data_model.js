@@ -63,8 +63,11 @@ module.exports = function (mongoose) {
 
     // Bind to DB collection names and return on single object
     return {
+        FollowRelation: mongoose.model("following", FollowRelation),
         Consumer: mongoose.model("consumer", Consumer),
+        Like: mongoose.model("like", Like),
         Moment: mongoose.model("moment", Moment),
+        Comment: mongoose.model("comment", Comment),
         Rating: mongoose.model("rating", Rating)
     };
 };
