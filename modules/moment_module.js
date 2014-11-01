@@ -97,7 +97,12 @@ module.exports = function (server, models) {
             if(!err) {
                 if(moment) {
                     req.body.created = new Date;
-                    moment.comments.push(req.body);
+                    if(moment.comments) {
+                        moment.comments.push(req.body);
+                    } else {
+                        moment.comments = [req.body];
+                    }
+
                     moment.save(function (err) {
                         if (!err) {
                             res.send(req.body);
