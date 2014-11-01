@@ -44,7 +44,13 @@
         {
             "author" : "5451b1fb84c3f4061a5f4996",
             "text" : "I cooked a delicious lasagna from this amazing recipe! You should do the same, dude.",
-            "subjectID" : "recipe/6251b1fb84c3f4061a5f4996"
+            "subjectID" : "recipe/6251b1fb84c3f4061a5f4996",
+            "comments" : [
+                {
+                    "author": "545338450a3aae73179954e7",
+                    "text": "It sure looks delicious!"
+                }
+            ]
         },
         {
             "author" : "5451b1fb84c3f4061a5f4996",
