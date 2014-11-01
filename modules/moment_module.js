@@ -64,4 +64,29 @@ module.exports = function (server, models) {
             }
         });
     });
+
+    // Reads (plural) - Moment (user specific)
+    server.get('/moment?consumer=:consumer', function(req, res, next) {
+        // Find consumer Id based on username
+        models.Consumer.findOne({"username":req.params.consumer}, function (err, consumer) {
+            if(!err) {
+                if(consumer) {
+                    models.Moment.find({ "author":consumer["_id"].toString() }, function(err, moments) {
+                        if(!err) {
+                            res.send(moments); // Note: sending even if it is empty. Assuming no db-error this should just mean the user didn't post any moments
+                            next();
+                        } else {
+                            console.error("Failed to query database for user-specific moments:", err);
+                            next(new restify.InternalError("Failed to retrieve moments due to an unexpected internal error"));
+                        }
+                    });
+                } else {
+                    next(new restify.ResourceNotFoundError("No consumer found with the given username"));
+                }
+            } else {
+                console.error("Failed to query database for specific consumer:", err);
+                next(new restify.InternalError("Failed to retrieve moments due to an unexpected internal error"));
+            }
+        });
+    });
 };
