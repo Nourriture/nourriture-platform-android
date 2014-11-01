@@ -5,7 +5,7 @@
 module.exports =  function (routes, src) {
 
     var Table = require('cli-table');
-    var table = new Table({ head: ["", "Name", "Path"] });
+    var table = new Table({ head: ["", "Name", "Path"], chars: { 'left':'\t│', 'right':'  │', 'left-mid':'\t├', 'bottom-left':'\t└', 'top-left':'\t┌', 'mid-mid':'─┼', 'bottom-mid':'─┴', 'top-mid':'─┬' } });
 
     console.log('\nAPI for this service \n');
     if(src == 'restify')
@@ -17,9 +17,9 @@ module.exports =  function (routes, src) {
             if (routes.hasOwnProperty(key)) {
                 var val = routes[key];
                 var _o = {};
-                _o[val.method]  = [val.name, val.spec.path ];
+                var name = /(\w+)[0-9]{3}/.exec(val.name)[1];
+                _o[val.method]  = [name, val.spec.path ];
                 table.push(_o);
-
             }
         }
     }
