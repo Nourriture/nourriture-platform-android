@@ -4,6 +4,7 @@
  */
 
 var restify = require('restify');
+var _ = require('lodash');
 
 module.exports = function (server, models) {
 
@@ -100,6 +101,44 @@ module.exports = function (server, models) {
                     moment.save(function (err) {
                         if (!err) {
                             res.send(req.body);
+                            next();
+                        } else {
+                            if (err.name == "ValidationError") {
+                                next(new restify.InvalidContentError(err.toString()));
+                            } else {
+                                console.error("Failed to update moment in database:", err);
+                                next(new restify.InternalError("Failed to insert comment due to an unexpected internal error"));
+                            }
+                        }
+                    });
+                } else {
+                    next(new restify.ResourceNotFoundError("No moment found with the given id"));
+                }
+            } else {
+                console.error("Failed to query database for specific moment:", err);
+                next(new restify.InternalError("Failed to insert comment due to an unexpected internal error"));
+            }
+        });
+    });
+
+    // Delete - Comment (from moment)
+    server.del('/moment/:id/comment/:cid', function (req, res, next) {
+        models.Moment.findOne({ "_id":req.params.id}, function(err, moment) {
+            if(!err) {
+                if(moment) {
+                    // Remove comment from moment
+                    var removedComment = _.remove(moment.comments, function(val) {
+                        return val["_id"] == req.params.cid;
+                    });
+
+                    if(moment.comments.length == 0) {
+                        moment.comments = null;
+                    }
+
+                    // Save modified moment
+                    moment.save(function (err) {
+                        if (!err) {
+                            res.send(removedComment[0]);
                             next();
                         } else {
                             if (err.name == "ValidationError") {
