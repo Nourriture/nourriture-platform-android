@@ -154,4 +154,21 @@ module.exports = function (server, models) {
             next(new restify.InvalidContentError("Invalid ObjectId"));
         }
     });
+
+    // Delete - Like (from moment)
+    server.del('/moment/:id/like/:cid', function (req, res, next) {
+        models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$pull": { "likes": req.params.cid } }, function(err, moment) {
+            if(!err) {
+                if(moment) {
+                    res.send(moment);
+                    next();
+                } else {
+                    next(new restify.ResourceNotFoundError("No moment found with the given id"));
+                }
+            } else {
+                console.error("Failed to query database for specific moment:", err);
+                next(new restify.InternalError("Failed to remove like due to an unexpected internal error"));
+            }
+        });
+    });
 };
