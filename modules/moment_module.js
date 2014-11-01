@@ -4,44 +4,59 @@
  */
 
 var restify = require('restify');
-var saveModule = require('save')('moment');    //TODO: module to stub fake companies, should be deleted once DB in place
 
-function createMoment(req, res, next) {
-    console.log('Create moment requested');
+module.exports = function (server, models) {
 
-    if (req.params.momentTitle === undefined) {
-        return next(new restify.InvalidArgumentError('Moment title attribute missing'));
-    }
+    // Create - Moment
+    server.post('/moment', function (req, res, next) {
+        var newMoment = new models.Moment(req.body);
 
-    saveModule.create({momentTitle: req.params.momentTitle}, function (error, moment) {
-        if (error) {
-            return next(new restify.InvalidArgumentError(JSON.stringify(error.errors)))
-        }
-        res.send(201, moment) //the '201 Created' HTTP response code + created moment
-        next();
-    })
-}
+        newMoment.save(function (err) {
+            if (!err) {
+                res.send(req.body);
+                next();
+            } else {
+                if (err.name == "ValidationError") {
+                    next(new restify.InvalidContentError(err.toString()));
+                } else {
+                    console.error("Failed to insert moment into database:", err);
+                    next(new restify.InternalError("Failed to insert moment due to an unexpected internal error"));
+                }
+            }
+        });
+    });
 
-function readAllMomentsForRecipe(req, res, next) {
-    console.log('Read all moments for a recipe requested');
+    // Read - Moment
+    server.get('/moment/:id', function(req, res, next) {
+        models.Moment.findOne({ "_id":req.params.id}, function(err, moment) {
+            if(!err) {
+                if(moment) {
+                    res.send(moment);
+                    next();
+                } else {
+                    next(new restify.ResourceNotFoundError("No moment found with the given id"));
+                }
+            } else {
+                console.error("Failed to query database for specific moment:", err);
+                next(new restify.InternalError("Failed to retrieve moment due to an unexpected internal error"));
+            }
+        });
+    });
 
-    /*saveModule.findOne({ recipeId: req.params.recipeId }, function (error, company) {
-        if (error){
-            return next(new restify.InvalidArgumentError(JSON.stringify(error.errors)))
-        }
-
-        if (company) {
-            res.send(company)
-            next();
-        } else {    //'Save' may provide an error, or undefined for the user variable if they don't exist
-            res.send(404)
-            next();
-        }
-    })*/
-
-    res.send(JSON.stringify("nothing to return yet"));
-    next();
-}
-
-exports.createMoment = createMoment;
-exports.readAllMomentsForRecipe = readAllMomentsForRecipe;
+    // Delete - Moment
+    server.del('/moment/:id', function(req, res, next) {
+        models.Moment.findOneAndRemove({ "_id":req.params.id }, function(err, deletedMoment) {
+            if(!err) {
+                if(deletedMoment) {
+                    res.send(deletedMoment);
+                    next();
+                } else {
+                    next(new restify.ResourceNotFoundError("No moment found with the given id"));
+                }
+            } else {
+                console.error("Failed to delete moment from database:", err);
+                next(new restify.InternalError("Failed to delete moment due to an unexpected internal error"));
+            }
+        });
+    });
+};

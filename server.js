@@ -47,8 +47,7 @@ var startServer = function() {
 var consumerModule  = require('./modules/consumer_module')(server, models);
 
 //MOMENT related API calls
-server.post('/moment/', momentModule.createMoment);
-server.get('/moment/:recipeId', momentModule.readAllMomentsForRecipe);
+var momentModule = require('./modules/moment_module')(server, models);
 
 // Connect to DB and start listening
 startServer();
