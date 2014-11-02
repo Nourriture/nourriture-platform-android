@@ -46,12 +46,6 @@ module.exports = function (server, models) {
 
     // Update - Consumer profile
     server.put('/consumer/:username', function(req, res, next) {
-        // If empty body, abort without even making DB connection
-        if (!req.body) {
-            next(new restify.InvalidContentError("No user submitted for update"));
-            return;
-        }
-
         // Retrieve existing user, overwrite fields, validate and save
         models.Consumer.find({ username:req.params.username }, function(err, result) {
             if(!err) {
