@@ -174,5 +174,22 @@ module.exports = function (server, models) {
             }
         });
     });
+
+    // Delete - Following relation from this consumer to another consumer
+    server.del('/consumer/:username/following/:target', function(req, res, next) {
+        models.Consumer.findOneAndUpdate({ "username":req.params.username}, { "$pull": { "following": { "consumer": req.params.target } } }, function(err, consumer) {
+            if(!err) {
+                if(consumer) {
+                    res.send(consumer);
+                    next();
+                } else {
+                    next(new restify.ResourceNotFoundError("No consumer found with the given username"));
+                }
+            } else {
+                console.error("Failed to query database for modifying a specfici consumer:", err);
+                next(new restify.InternalError("Failed to delete follow relation due to an unexpected internal error"));
+            }
+        });
+    });
 };
 
