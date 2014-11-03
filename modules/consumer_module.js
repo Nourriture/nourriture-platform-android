@@ -174,5 +174,41 @@ module.exports = function (server, models) {
             }
         });
     });
+
+    // Delete - Following relation from this consumer to another consumer
+    server.del('/consumer/:username/following/:target', function(req, res, next) {
+        models.Consumer.findOne({ username:req.params.username }, function(err, consumer) {
+            if(!err) {
+                if(consumer) {
+                    // Is this consumer not following this other consumer already?
+                    var followRelation = _.filter(consumer.following, function(item) {
+                        return item.consumer.toString() == req.params.target;
+                    });
+
+                    // Make array with only the raw documents
+                    var followRelationDoc = _.map(followRelation, function(item) {
+                        return item._doc
+                    });
+
+                    // Do actual update, pull follow relation from nested list of relations
+                    models.Consumer.findOneAndUpdate({ username:consumer.username }, { $pullAll:{ following:followRelationDoc } }, function(err, resConsumer) {
+                        if(!err) {
+                            res.send(resConsumer);
+                            next();
+                        } else {
+                            next(new restify.ResourceNotFoundError("No consumer found with the given username"));
+                        }
+                    });
+                } else {
+                    // No user found with given username
+                    next(new restify.ResourceNotFoundError("No consumer found with the given username"));
+                }
+            } else {
+                // Database connection error
+                console.error("Failed to query database for consumer profile:", err);
+                next(new restify.InternalError("Failed to insert follow relation due to an unexpected internal error"));
+            }
+        });
+    });
 };
 
