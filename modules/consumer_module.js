@@ -3,10 +3,11 @@
  * Module for consumer specific API calls.
  */
 
+var fs = require('fs');
 var restify = require('restify');
 var _ = require('lodash');
 
-module.exports = function (server, models) {
+module.exports = function (server, models, aws) {
 
     // Create - Consumer profile
     server.post('/consumer', function(req, res, next) {
@@ -190,6 +191,45 @@ module.exports = function (server, models) {
                 next(new restify.InternalError("Failed to delete follow relation due to an unexpected internal error"));
             }
         });
+    });
+
+    // Create - Consumer picture
+    server.post('/consumer/:username/picture', function(req, res, next) {
+        for (var filename in req.files) {
+            if(filename != "_proto_") {
+                var file = req.files[filename];
+                var filetype = /^.+\.(.+)$/.exec(filename)[1];
+                var typeOK = _.contains(["jpg", "jpeg", "png", "gif"], filetype);
+                var newFileName = req.params.username + "." + filetype;
+                if(typeOK && file.size < 1000000) {
+                    fs.readFile(file.path, { flag: "r" }, function (err, data) {
+                        if (!err) {
+                            s3 = new aws.S3();
+                            s3.putObject({
+                                    Bucket: "nourriture-consumer",
+                                    ACL: "public-read",
+                                    Key: newFileName,
+                                    ContentType: "image/" + filetype,
+                                    Body: data
+                                },
+                                function (err, data) {
+                                    if (!err) {
+                                        next();
+                                    } else {
+                                        console.error("Failed to put consumer picture into S3", err);
+                                        next(new restify.InternalError("Failed to save picture due to an unexpected internal error"));
+                                    }
+                                }
+                            );
+                        } else {
+                            console.error("Failed to open temporary file created by consumer picture upload");
+                            next(new restify.InternalError("Failed to save picture due to an unexpected internal error"));
+                        }
+                    });
+                }
+                console.log(file.path);
+            }
+        }
     });
 };
 
