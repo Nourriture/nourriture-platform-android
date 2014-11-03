@@ -29,3 +29,6 @@ node_modules
 
 # Ignore WebStorm's preference directory
 .idea/
+
+# Ignore AWS configuration
+aws-config.json

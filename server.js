@@ -6,7 +6,7 @@
 var restify         = require('restify');
 var mongoose        = require("mongoose");
 var models          = require("./models/data_model")(mongoose);
-var momentModule    = require('./modules/moment_module');
+var aws             = require("aws-sdk");
 
 var server = restify.createServer({ name: 'Nourriture Android backed server', version: '0.0.1' });
 var connstr = "mongodb://localhost:27017/nourriture-app";
@@ -21,6 +21,8 @@ if (process.argv[2]) {
 server.use(restify.fullResponse());
 server.use(restify.bodyParser({ mapParams : false }));
 server.use(restify.queryParser());
+
+aws.config.loadFromPath("./aws-config.json");
 
 // Server startup function, should be run when all routes have been registered and we are ready to listen
 var startServer = function() {
@@ -45,7 +47,7 @@ var startServer = function() {
 };
 
 //CONSUMER related API calls
-var consumerModule  = require('./modules/consumer_module')(server, models);
+var consumerModule  = require('./modules/consumer_module')(server, models, aws);
 
 //MOMENT related API calls
 var momentModule = require('./modules/moment_module')(server, models);
