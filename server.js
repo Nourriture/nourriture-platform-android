@@ -18,7 +18,7 @@ server.use(restify.fullResponse());
 server.use(restify.bodyParser({ mapParams : false }));
 server.use(restify.queryParser());
 
-aws.config.loadFromPath("./aws-config.json");
+aws.config.update(nconf.get("amazon"));
 
 // Server startup function, should be run when all routes have been registered and we are ready to listen
 var startServer = function() {

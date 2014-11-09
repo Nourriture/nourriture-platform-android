@@ -14,6 +14,11 @@ module.exports = function (nconf) {
         "name": "Nourriture Android Application Backend",
         "version": "0.0.1",
         "port": 8081,
-        "connection-string": "mongodb://localhost:27017/nourriture-android"
+        "connection-string": "mongodb://localhost:27017/nourriture-android",
+        "amazon": {
+            "accessKeyId": "youraccesskey",
+            "secretAccessKey": "yoursecretkey",
+            "region": "yourregion"
+        }
     });
 };
