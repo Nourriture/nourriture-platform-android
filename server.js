@@ -1,6 +1,6 @@
 /**
  * Created by Pavel Prochazka on 23/10/14.
- * The platform backend for Nourriture (based on Restify)
+ * The android backend for Nourriture (based on Restify)
  */
 
 var restify         = require('restify');
