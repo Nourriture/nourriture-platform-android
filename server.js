@@ -1,6 +1,6 @@
 /**
  * Created by Pavel Prochazka on 23/10/14.
- * The main server based on restify.
+ * The platform backend for Nourriture (based on Restify)
  */
 
 var restify         = require('restify');
