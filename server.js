@@ -7,17 +7,13 @@ var restify         = require('restify');
 var mongoose        = require("mongoose");
 var models          = require("./models/data_model")(mongoose);
 var aws             = require("aws-sdk");
+var nconf           = require("nconf");
 
-var server = restify.createServer({ name: 'Nourriture Android backed server', version: '0.0.1' });
-var connstr = "mongodb://localhost:27017/nourriture-app";
-var conn = {};
-var mong = {};
+// Load configuration
+require("./modules/config_module")(nconf);
 
-var port = 8080;
-if (process.argv[2]) {
-    port = parseInt(process.argv[2]);
-}
-
+// Initialize server
+var server = restify.createServer({ name: nconf.get("name"), version: nconf.get("version") });
 server.use(restify.fullResponse());
 server.use(restify.bodyParser({ mapParams : false }));
 server.use(restify.queryParser());
@@ -34,16 +30,14 @@ var startServer = function() {
     // On successful connection, finalize server startup
     db.once('open', function() {
         console.log("Connected to database successfully!");
-        conn = db;
 
-        server.listen(port, function () {
+        server.listen(nconf.get("port"), function () {
             console.log('- - - %s listening at %s - - -', server.name, server.url);
             require('./utilities/document')(server.router.mounts, 'restify');
         });
     });
 
-    mongoose.connect(connstr);
-    mong = new mongoose.Mongoose();
+    mongoose.connect(nconf.get("connection-string"));
 };
 
 //CONSUMER related API calls

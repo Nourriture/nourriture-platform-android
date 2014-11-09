@@ -32,3 +32,4 @@ node_modules
 
 # Ignore AWS configuration
 aws-config.json
+config.json
