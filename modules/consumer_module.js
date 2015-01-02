@@ -15,7 +15,7 @@ module.exports = function (server, models, aws) {
 
         newConsumer.save(function (err) {
            if(!err) {
-               res.send(req.body);
+               res.send(newConsumer);
                next();
            } else {
                if(err.name == "ValidationError") {
