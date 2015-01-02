@@ -29,7 +29,7 @@ module.exports = function (server, models) {
 
     // Read - Moment
     server.get('/moment/:id', function(req, res, next) {
-        models.Moment.findOne({ "_id":req.params.id}, function(err, moment) {
+        models.Moment.findById(req.params.id, function(err, moment) {
             if(!err) {
                 if(moment) {
                     res.send(moment);
