@@ -187,11 +187,7 @@ describe('Moments module API tests', function() {
                     .expect(200)
                     .end(function(error, response){
                         var rMoment = response.body;
-                        Expect(rMoment.text).to.eql("I cooked a delicious lasagna from this amazing recipe! You should do the same, dude.");
-                        Expect(rMoment.likeCount).to.equal(0);
                         Expect(rMoment.commentCount).to.equal(1);
-                        Expect(rMoment).to.have.property("likes")
-                            .that.is.empty();
                         Expect(rMoment).to.have.property("comments")
                             .that.have.length.of(1)
                             .that.include(rComment);
