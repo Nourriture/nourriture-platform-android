@@ -30,9 +30,9 @@ module.exports = function (server, models, aws) {
 
     // Read - Consumer profile
     server.get('/consumer/:username', function(req, res, next) {
-        models.Consumer.find({ username:req.params.username }, function(err, consumer) {
+        models.Consumer.findOne({ username:req.params.username }, function(err, consumer) {
             if(!err) {
-                if(consumer.length != 0) {
+                if(consumer) {
                     res.send(consumer);
                     next();
                 } else {
