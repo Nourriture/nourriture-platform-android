@@ -196,4 +196,33 @@ describe('Moments module API tests', function() {
                     });
             });
     });
+
+    it('POST a like to a moment', function (done) {
+        var tId = "54a689987048351b5d2972a7"; // ID of sample moment to be liked
+        var likeAuthor = "54a689007048351b5d2972a4"; // ID of sample consumer to be author of like
+
+        API.post('/moment/' + tId + '/like')
+            .set('Content-Type', 'application/json')
+            .send("\"" + likeAuthor + "\"")
+            .expect(200)
+            .end(function(error, response){
+                // Well-formed response
+                Expect(response.body.length).to.equal(1);
+                Expect(response.body[0]).to.equal(likeAuthor);
+
+                // Moment updated on sub-sequent GET query
+                API.get('/moment/' + tId)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .end(function(error, response){
+                        var rMoment = response.body;
+                        Expect(rMoment.likeCount).to.equal(1);
+                        Expect(rMoment).to.have.property("likes")
+                            .that.have.length.of(1)
+                            .that.include(likeAuthor);
+
+                        done()
+                    });
+            });
+    });
 });
