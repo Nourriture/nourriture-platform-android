@@ -44,6 +44,19 @@ module.exports = function (server, models) {
         });
     });
 
+    // Reads (plural) - All Moments for testing purposes
+    server.get('/moment', function(req, res, next) {
+        models.Moment.find(function(err, moments) {
+            if(!err) {
+                res.send(moments);
+                next();
+            } else {
+                console.error("Failed to read moments from database", err);
+                next(new restify.InternalError("Failed to retrieve moments due to an unexpected internal error"));
+            }
+        });
+    });
+
     // Update - Moment
     server.put('/moment/:id', function(req, res, next) {
        next(new restify.NotAuthorizedError("Currently consumers are not authorized to update moment, not even their own, sorry."));
