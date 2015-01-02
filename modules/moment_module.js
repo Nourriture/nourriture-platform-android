@@ -46,15 +46,18 @@ module.exports = function (server, models) {
 
     // Reads (plural) - All Moments for testing purposes
     server.get('/moment', function(req, res, next) {
-        models.Moment.find(function(err, moments) {
-            if(!err) {
-                res.send(moments);
-                next();
-            } else {
-                console.error("Failed to read moments from database", err);
-                next(new restify.InternalError("Failed to retrieve moments due to an unexpected internal error"));
-            }
-        });
+        models.Moment
+            .find()
+            .select({ comments:0, likes:0 })    // Don't select likes and comments for plural queries
+            .exec(function(err, moments) {
+                if(!err) {
+                    res.send(moments);
+                    next();
+                } else {
+                    console.error("Failed to read moments from database", err);
+                    next(new restify.InternalError("Failed to retrieve moments due to an unexpected internal error"));
+                }
+            });
     });
 
     // Update - Moment

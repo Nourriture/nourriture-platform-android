@@ -81,7 +81,14 @@ describe('Moments module API tests', function() {
             .set('Content-Type', 'application/json')
             .expect(200)
             .end(function(error, response){
-                Expect(response.body.text).to.eql("I cooked a delicious lasagna from this amazing recipe! You should do the same, dude.");
+
+                var rMoment = response.body;
+                Expect(rMoment.text).to.eql("I cooked a delicious lasagna from this amazing recipe! You should do the same, dude.");
+                Expect(rMoment.likeCount).to.equal(0);
+                Expect(rMoment.commentCount).to.equal(0);
+                Expect(rMoment).to.have.property("likes").that.is.empty(); // TODO: Add more interesting sample data with some likes and comments and validate here
+                Expect(rMoment).to.have.property("comments").that.is.empty();
+
                 done()
             });
     });
@@ -93,6 +100,23 @@ describe('Moments module API tests', function() {
             .expect(200)
             .end(function(error, response){
                 Expect(response.body.length).to.eql(1);
+                done()
+            });
+    });
+
+    it('GET all moments', function (done) {
+        API.get('/moment')
+            .set('Content-Type', 'application/json')
+            .expect(200)
+            .end(function(error, response){
+                Expect(response.body.length).to.eql(2);
+
+                var rMoment = response.body[0];
+                Expect(rMoment).not.to.have.property("likes");
+                Expect(rMoment).not.to.have.property("comments");
+                Expect(rMoment.likeCount).to.equal(0);
+                Expect(rMoment.commentCount).to.equal(0);
+
                 done()
             });
     });
@@ -119,6 +143,10 @@ describe('Moments module API tests', function() {
                     .that.is.empty();
                 Expect(rMoment).to.have.property("comments")
                     .that.is.empty();
+                Expect(rMoment).to.have.property("likeCount")
+                    .that.is.equal(0);
+                Expect(rMoment).to.have.property("commentCount")
+                    .that.is.equal(0);
 
                 done()
             });

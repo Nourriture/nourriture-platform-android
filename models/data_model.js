@@ -42,8 +42,11 @@ module.exports = function (mongoose) {
         text: { type: String, validate: util.strLength(1024) },
         subjectID: String,       // NOTE: Referring to recipe, ingredient, gastronomist or company in Nourriture (3rd party)
         likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Consumer"}],
-        comments: [Comment]
+        likeCount: Number,
+        comments: [Comment],
+        commentCount: Number
     });
+    Moment.pre('validate', true, util.initMomentCounters);
     Moment.pre('validate', true, util.updateTimeStamps);
 
     // RATING

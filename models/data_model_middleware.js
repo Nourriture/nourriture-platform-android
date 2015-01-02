@@ -22,3 +22,10 @@ exports.updateTimeStamps = function(next, done) {
     this.modified = new Date;
     next(); done();
 };
+
+// middleware for automatically initializing moment like/comment counters
+exports.initMomentCounters = function(next, done) {
+    if(!this.likeCount) this.likeCount = 0;
+    if(!this.commentCount) this.commentCount = 0;
+    next(); done();
+};
