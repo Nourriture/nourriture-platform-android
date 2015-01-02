@@ -14,7 +14,7 @@ module.exports = function (server, models) {
 
         newMoment.save(function (err) {
             if (!err) {
-                res.send(req.body);
+                res.send(newMoment);
                 next();
             } else {
                 if (err.name == "ValidationError") {
