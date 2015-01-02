@@ -115,7 +115,7 @@ module.exports = function (server, models) {
         newComment.validate(function(err) {
             if(!err) {
                 // Do actual insertion
-                models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$push": { "comments": newComment._doc } }, function(err) {
+                models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$push": { "comments": newComment._doc }, "$inc": { "commentCount": 1 } }, function(err) {
                     if(!err) {
                         res.send(newComment);
                         next();

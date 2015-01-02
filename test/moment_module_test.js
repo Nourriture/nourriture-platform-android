@@ -161,4 +161,43 @@ describe('Moments module API tests', function() {
                 done();
             });
     });
+
+    it('POST a comment to a moment', function (done) {
+        var tId = "54a689987048351b5d2972a7"; // ID of sample moment to be commented on
+        var sampleComment = {
+            author: "54a689007048351b5d2972a4", // ID of sample consumer to be author of moment
+            text: "That lasagne does indeed look delicious, I will make one too!"
+        };
+
+        API.post('/moment/' + tId + '/comment')
+            .set('Content-Type', 'application/json')
+            .send(sampleComment)
+            .expect(200)
+            .end(function(error, response){
+                // Well-formed response
+                var rComment = response.body;
+                Expect(rComment._id).to.exist();
+                Expect(rComment.created).to.exist();
+                Expect(rComment.author).to.eql(sampleComment.author);
+                Expect(rComment.text).to.eql(sampleComment.text);
+
+                // Moment updated on sub-sequent GET query
+                API.get('/moment/' + tId)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .end(function(error, response){
+                        var rMoment = response.body;
+                        Expect(rMoment.text).to.eql("I cooked a delicious lasagna from this amazing recipe! You should do the same, dude.");
+                        Expect(rMoment.likeCount).to.equal(0);
+                        Expect(rMoment.commentCount).to.equal(1);
+                        Expect(rMoment).to.have.property("likes")
+                            .that.is.empty();
+                        Expect(rMoment).to.have.property("comments")
+                            .that.have.length.of(1)
+                            .that.include(rComment);
+
+                        done()
+                    });
+            });
+    });
 });
