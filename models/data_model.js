@@ -31,7 +31,10 @@ module.exports = function (mongoose) {
     // MOMENT
     var Comment = mongoose.Schema({
        created: { type: Date, required: true},
-       author: { type: mongoose.Schema.Types.ObjectId, ref: "Consumer", required: true},
+       author: {
+           cId: { type: mongoose.Schema.Types.ObjectId, ref: "Consumer", required: true},
+           name: { type: String, validate: util.strLength(64), required: true }
+       },
        text: { type: String, validate: util.strLength(1024)},
        likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Consumer"}]
     });

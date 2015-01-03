@@ -168,7 +168,10 @@ describe('Moments module API tests', function() {
     it('POST a comment to a moment', function (done) {
         var tId = "54a689987048351b5d2972a7"; // ID of sample moment to be commented on
         var sampleComment = {
-            author: "54a689007048351b5d2972a4", // ID of sample consumer to be author of moment
+            author: {
+                cId: "54a689007048351b5d2972a4", // Sample consumer to be author of moment
+                name: "Arnaud Kevin"
+            },
             text: "That lasagne does indeed look delicious, I will make one too!"
         };
 
