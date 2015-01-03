@@ -257,4 +257,35 @@ describe('Moments module API tests', function() {
                     });
             });
     });
+
+    it('DELETE a like from a moment', function (done) {
+        var tId = "54a689987048351b5d2972a7"; // ID of sample moment containing comment to be removed
+        var cId = "54a689007048351b5d2972a4"; // ID of consumer whose like to be removed
+        API.delete('/moment/' + tId + "/like/" + cId)
+            .set('Content-Type', 'application/json')
+            .expect(200)
+            .end(function(error, response){
+                // Well-formed response
+                Expect(response.body).to.equal(cId);
+
+                // Moment updated on sub-sequent GET query
+                API.get('/moment/' + tId)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .end(function(error, response){
+                        var rMoment = response.body;
+                        Expect(rMoment.likeCount).to.equal(0);
+                        Expect(rMoment.likes).to.be.empty();
+                        done();
+                    });
+            });
+    });
+
+    it('DELETE a non-existent like from a moment', function (done) {
+        var tId = "54a689987048351b5d2972a7"; // ID of sample moment containing comment to be removed
+        var cId = "54a689987048351b5d297221"; // ID of non-existent consumer (random)
+        API.delete('/moment/' + tId + "/like/" + cId)
+            .set('Content-Type', 'application/json')
+            .expect(404, done); // Not found
+    });
 });

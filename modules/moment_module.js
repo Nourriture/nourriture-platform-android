@@ -183,11 +183,21 @@ module.exports = function (server, models) {
 
     // Delete - Like (from moment)
     server.del('/moment/:id/like/:cid', function (req, res, next) {
-        models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$pull": { "likes": req.params.cid } }, function(err, moment) {
+        models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$pull": { "likes": req.params.cid }, "$inc": { "likeCount": -1 } }, { "new": false }, function(err, moment) {
             if(!err) {
                 if(moment) {
-                    res.send(moment);
-                    next();
+                    // Look up like in unmodified moment
+                    var like = _.find(moment.toObject().likes, function(item) {
+                        return item.toString() == req.params.cid;
+                    });
+
+                    // If it was found return it, otherwise it never existed and 404 should be returned
+                    if(like) {
+                        res.send(like);
+                        next();
+                    } else {
+                        next(new restify.ResourceNotFoundError("No like found from the given user in the given moment"));
+                    }
                 } else {
                     next(new restify.ResourceNotFoundError("No moment found with the given id"));
                 }
