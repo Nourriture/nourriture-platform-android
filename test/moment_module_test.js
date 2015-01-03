@@ -151,7 +151,28 @@ describe('Moments module API tests', function() {
                 Expect(rMoment).to.have.property("commentCount")
                     .that.is.equal(0);
 
-                done()
+                // Moment correct on sub-sequent GET query
+                API.get('/moment/' + rMoment._id.toString())
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .end(function(error, response){
+                        var rMoment2 = response.body;
+                        Expect(rMoment2._id).to.eql(rMoment._id);
+                        Expect(rMoment2.created).to.eql(rMoment.created);
+                        Expect(rMoment2.modified).to.eql(rMoment.modified);
+                        Expect(rMoment2.author).to.eql(sampleMoment.author);
+                        Expect(rMoment2.text).to.eql(sampleMoment.text);
+                        Expect(rMoment2).to.have.property("likes")
+                            .that.is.empty();
+                        Expect(rMoment2).to.have.property("comments")
+                            .that.is.empty();
+                        Expect(rMoment2).to.have.property("likeCount")
+                            .that.is.equal(0);
+                        Expect(rMoment2).to.have.property("commentCount")
+                            .that.is.equal(0);
+
+                        done()
+                    });
             });
     });
 
