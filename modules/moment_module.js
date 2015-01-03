@@ -132,11 +132,21 @@ module.exports = function (server, models) {
 
     // Delete - Comment (from moment)
     server.del('/moment/:id/comment/:cid', function (req, res, next) {
-        models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$pull": { "comments": { "_id": req.params.cid } }, "$inc": { "commentCount": -1 } }, function(err, moment) {
+        models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$pull": { "comments": { "_id": req.params.cid } }, "$inc": { "commentCount": -1 } }, { "new": false }, function(err, moment) {
             if(!err) {
                 if(moment) {
-                    res.send(moment);
-                    next();
+                    // Look up comment in unmodified moment
+                    var comment = _.find(moment.toObject().comments, function(item) {
+                        return item._id.toString() == req.params.cid;
+                    });
+
+                    // If it was found return it, otherwise it never existed and 404 should be returned
+                    if(comment) {
+                        res.send(comment);
+                        next();
+                    } else {
+                        next(new restify.ResourceNotFoundError("No comment found with the given id in the given moment"));
+                    }
                 } else {
                     next(new restify.ResourceNotFoundError("No moment found with the given id"));
                 }

@@ -205,18 +205,17 @@ describe('Moments module API tests', function() {
             .expect(200)
             .end(function(error, response){
                 // Well-formed response
-                var rMoment = response.body;
-                Expect(rMoment.commentCount).to.equal(0);
-                Expect(rMoment.comments).to.be.empty();
+                var rComment = response.body;
+                Expect(rComment._id).to.eql(cId);
 
                 // Moment updated on sub-sequent GET query
                 API.get('/moment/' + tId)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .end(function(error, response){
-                        var rMoment2 = response.body;
-                        Expect(rMoment2.commentCount).to.equal(0);
-                        Expect(rMoment2.comments).to.be.empty();
+                        var rMoment = response.body;
+                        Expect(rMoment.commentCount).to.equal(0);
+                        Expect(rMoment.comments).to.be.empty();
                         done();
                     });
             });
@@ -227,7 +226,7 @@ describe('Moments module API tests', function() {
         var cId = "54a689987048351b5d297221"; // ID of non-existent comment (random)
         API.delete('/moment/' + tId + "/comment/" + cId)
             .set('Content-Type', 'application/json')
-            .expect(204, done); // Not found
+            .expect(404, done); // Not found
     });
 
     it('POST a like to a moment', function (done) {
