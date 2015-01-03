@@ -44,16 +44,16 @@ module.exports = function (server, models) {
         });
     });
 
-    // Reads (plural) - Moment (all or filtered)
+    // Reads (plural) - Moment (all or filtered by author)
     server.get('/moment', function(req, res, next) {
         // Construct basic query
         var query = models.Moment
             .find()
             .select({ comments:0, likes:0 });    // Don't select likes and comments for plural queries
 
-        // If parameters specified use them;
-        if(req.params) {
-            query.find(req.params);
+        // If author parameter specified, use it to filter
+        if(req.params.author) {
+            query.find({ "author.cId": req.params.author });
         }
 
         // Execute query
