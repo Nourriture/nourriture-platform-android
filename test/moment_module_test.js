@@ -197,6 +197,39 @@ describe('Moments module API tests', function() {
             });
     });
 
+    it('DELETE a comment from a moment', function (done) {
+        var tId = "54a689987048351b5d2972a7"; // ID of sample moment containing comment to be removed
+        var cId = "54a7896cc52057ef14085c85"; // ID of sample comment to be removed
+        API.delete('/moment/' + tId + "/comment/" + cId)
+            .set('Content-Type', 'application/json')
+            .expect(200)
+            .end(function(error, response){
+                // Well-formed response
+                var rMoment = response.body;
+                Expect(rMoment.commentCount).to.equal(0);
+                Expect(rMoment.comments).to.be.empty();
+
+                // Moment updated on sub-sequent GET query
+                API.get('/moment/' + tId)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .end(function(error, response){
+                        var rMoment2 = response.body;
+                        Expect(rMoment2.commentCount).to.equal(0);
+                        Expect(rMoment2.comments).to.be.empty();
+                        done();
+                    });
+            });
+     });
+
+    it('DELETE a non-existent comment from a moment', function (done) {
+        var tId = "54a689987048351b5d2972a7"; // ID of sample moment containing comment to be removed
+        var cId = "54a689987048351b5d297221"; // ID of non-existent comment (random)
+        API.delete('/moment/' + tId + "/comment/" + cId)
+            .set('Content-Type', 'application/json')
+            .expect(204, done); // Not found
+    });
+
     it('POST a like to a moment', function (done) {
         var tId = "54a689987048351b5d2972a7"; // ID of sample moment to be liked
         var likeAuthor = "54a689007048351b5d2972a5"; // ID of sample consumer to be author of like

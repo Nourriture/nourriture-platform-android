@@ -132,7 +132,7 @@ module.exports = function (server, models) {
 
     // Delete - Comment (from moment)
     server.del('/moment/:id/comment/:cid', function (req, res, next) {
-        models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$pull": { "comments": { "_id": req.params.cid } } }, function(err, moment) {
+        models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$pull": { "comments": { "_id": req.params.cid } }, "$inc": { "commentCount": -1 } }, function(err, moment) {
             if(!err) {
                 if(moment) {
                     res.send(moment);
