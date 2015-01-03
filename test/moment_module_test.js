@@ -94,8 +94,8 @@ describe('Moments module API tests', function() {
     });
 
     it('GET moments of specific consumer', function (done) {
-        var uId = "ctverecek"; // Username of consumer whose moment should be retrieved
-        API.get('/moment?consumer=' + uId)
+        var uId = "54a688dc7048351b5d2972a3"; // Username of consumer whose moment should be retrieved
+        API.get('/moment?author=' + uId)
             .set('Content-Type', 'application/json')
             .expect(200)
             .end(function(error, response){

@@ -44,12 +44,20 @@ module.exports = function (server, models) {
         });
     });
 
-    // Reads (plural) - All Moments for testing purposes
+    // Reads (plural) - Moment (all or filtered)
     server.get('/moment', function(req, res, next) {
-        models.Moment
+        // Construct basic query
+        var query = models.Moment
             .find()
-            .select({ comments:0, likes:0 })    // Don't select likes and comments for plural queries
-            .exec(function(err, moments) {
+            .select({ comments:0, likes:0 });    // Don't select likes and comments for plural queries
+
+        // If parameters specified use them;
+        if(req.params) {
+            query.find(req.params);
+        }
+
+        // Execute query
+        query.exec(function(err, moments) {
                 if(!err) {
                     res.send(moments);
                     next();
@@ -78,31 +86,6 @@ module.exports = function (server, models) {
             } else {
                 console.error("Failed to delete moment from database:", err);
                 next(new restify.InternalError("Failed to delete moment due to an unexpected internal error"));
-            }
-        });
-    });
-
-    // Reads (plural) - Moment (user specific)
-    server.get('/moment?consumer=:consumer', function(req, res, next) {
-        // Find consumer Id based on username
-        models.Consumer.findOne({"username":req.params.consumer}, function (err, consumer) {
-            if(!err) {
-                if(consumer) {
-                    models.Moment.find({ "author":consumer["_id"].toString() }, function(err, moments) {
-                        if(!err) {
-                            res.send(moments); // Note: sending even if it is empty. Assuming no db-error this should just mean the user didn't post any moments
-                            next();
-                        } else {
-                            console.error("Failed to query database for user-specific moments:", err);
-                            next(new restify.InternalError("Failed to retrieve moments due to an unexpected internal error"));
-                        }
-                    });
-                } else {
-                    next(new restify.ResourceNotFoundError("No consumer found with the given username"));
-                }
-            } else {
-                console.error("Failed to query database for specific consumer:", err);
-                next(new restify.InternalError("Failed to retrieve moments due to an unexpected internal error"));
             }
         });
     });
