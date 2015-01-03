@@ -239,8 +239,7 @@ describe('Moments module API tests', function() {
             .expect(200)
             .end(function(error, response){
                 // Well-formed response
-                Expect(response.body.length).to.equal(2);
-                Expect(response.body[1]).to.equal(likeAuthor);
+                Expect(response.body).to.equal(likeAuthor);
 
                 // Moment updated on sub-sequent GET query
                 API.get('/moment/' + tId)

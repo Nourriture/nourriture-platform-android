@@ -149,7 +149,7 @@ module.exports = function (server, models) {
             models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$addToSet": { "likes": req.body }, "$inc": { "likeCount": 1 } }, function(err, moment) {
                 if(!err) {
                     if(moment) {
-                        res.send(moment.likes);
+                        res.send(req.body);
                         next();
                     } else {
                         next(new restify.ResourceNotFoundError("No moment found with the given id"));
