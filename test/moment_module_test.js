@@ -123,7 +123,10 @@ describe('Moments module API tests', function() {
 
     it('POST a moment, with required fields', function (done) {
         var sampleMoment = {
-            author: "54a688dc7048351b5d2972a3", // ID of sample consumer to be author of moment
+            author: {
+                cId: "54a688dc7048351b5d2972a3", // ID of sample consumer to be author of moment
+                name: "Pavel Prochazka"
+            },
             text: "This is my test moment about test food"
         };
 

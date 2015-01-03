@@ -37,7 +37,10 @@ module.exports = function (mongoose) {
     });
     var Moment = mongoose.Schema({
         created: { type: Date, required: true },
-        author: { type: mongoose.Schema.Types.ObjectId, ref: "Consumer", required: true },
+        author: {
+            cId: { type: mongoose.Schema.Types.ObjectId, ref: "Consumer", required: true},
+            name: { type: String, validate: util.strLength(64), required: true }
+        },
         modified: { type: Date, required: true },
         text: { type: String, validate: util.strLength(1024) },
         subjectID: String,       // NOTE: Referring to recipe, ingredient, gastronomist or company in Nourriture (3rd party)
