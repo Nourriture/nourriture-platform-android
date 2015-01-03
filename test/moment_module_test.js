@@ -237,15 +237,18 @@ describe('Moments module API tests', function() {
 
     it('POST a like to a moment', function (done) {
         var tId = "54a689987048351b5d2972a7"; // ID of sample moment to be liked
-        var likeAuthor = "54a689007048351b5d2972a5"; // ID of sample consumer to be author of like
+        var sampleLike = {
+            cId: "54a689007048351b5d2972a5", // Sample consumer to be author of like
+            name: "Niels Jensen"
+        };
 
         API.post('/moment/' + tId + '/like')
             .set('Content-Type', 'application/json')
-            .send("\"" + likeAuthor + "\"")
+            .send(sampleLike)
             .expect(200)
             .end(function(error, response){
                 // Well-formed response
-                Expect(response.body).to.equal(likeAuthor);
+                Expect(response.body).to.eql(sampleLike);
 
                 // Moment updated on sub-sequent GET query
                 API.get('/moment/' + tId)
@@ -256,7 +259,7 @@ describe('Moments module API tests', function() {
                         Expect(rMoment.likeCount).to.equal(2);
                         Expect(rMoment).to.have.property("likes")
                             .that.have.length.of(2)
-                            .that.include(likeAuthor);
+                            .that.include(sampleLike);
 
                         done()
                     });
@@ -271,7 +274,9 @@ describe('Moments module API tests', function() {
             .expect(200)
             .end(function(error, response){
                 // Well-formed response
-                Expect(response.body).to.equal(cId);
+                var rLike = response.body;
+                Expect(rLike.cId).to.equal(cId);
+                Expect(rLike.name).to.equal("Arnaud Kevin");
 
                 // Moment updated on sub-sequent GET query
                 API.get('/moment/' + tId)

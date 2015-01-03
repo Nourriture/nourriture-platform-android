@@ -142,36 +142,38 @@ module.exports = function (server, models) {
 
     // Create - Like (to moment)
     server.post('/moment/:id/like', function (req, res, next) {
-        // TODO: Do prober validation of ObjectId by comparing to current authenticated user. Validate both authorization and type.
-        var valid = req.body;
-
-        if(valid) {
-            models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$addToSet": { "likes": req.body }, "$inc": { "likeCount": 1 } }, function(err, moment) {
-                if(!err) {
-                    if(moment) {
-                        res.send(req.body);
-                        next();
+         // Validate like
+        var newLike = new models.Like(req.body);
+        newLike.validate(function(err) {
+            if(!err) {
+                // Do actual insertion
+                models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$addToSet": { "likes": newLike.toObject() }, "$inc": { "likeCount": 1 } }, function(err, moment) {
+                    if(!err) {
+                        if(moment) {
+                            res.send(newLike);
+                            next();
+                        } else {
+                            next(new restify.ResourceNotFoundError("No moment found with the given id"));
+                        }
                     } else {
-                        next(new restify.ResourceNotFoundError("No moment found with the given id"));
+                        console.error("Failed to update moment in database:", err);
+                        next(new restify.InternalError("Failed to insert like due to an unexpected internal error"))
                     }
-                } else {
-                    console.error("Failed to update moment in database:", err);
-                    next(new restify.InternalError("Failed to insert like due to an unexpected internal error"))
-                }
-            });
-        } else {
-            next(new restify.InvalidContentError("Invalid ObjectId"));
-        }
+                });
+            } else {
+                next(new restify.InvalidContentError(err.toString()));
+            }
+        });
     });
 
     // Delete - Like (from moment)
     server.del('/moment/:id/like/:cid', function (req, res, next) {
-        models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$pull": { "likes": req.params.cid }, "$inc": { "likeCount": -1 } }, { "new": false }, function(err, moment) {
+        models.Moment.findOneAndUpdate({ "_id":req.params.id}, { "$pull": { "likes": { "cId": req.params.cid } }, "$inc": { "likeCount": -1 } }, { "new": false }, function(err, moment) {
             if(!err) {
                 if(moment) {
                     // Look up like in unmodified moment
                     var like = _.find(moment.toObject().likes, function(item) {
-                        return item.toString() == req.params.cid;
+                        return item.cId.toString() == req.params.cid;
                     });
 
                     // If it was found return it, otherwise it never existed and 404 should be returned

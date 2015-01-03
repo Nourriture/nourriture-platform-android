@@ -29,6 +29,10 @@ module.exports = function (mongoose) {
     Consumer.pre('validate', true, util.updateTimeStamps);
 
     // MOMENT
+    var Like = mongoose.Schema({
+        cId: { type: mongoose.Schema.Types.ObjectId, ref: "Consumer", required: true},
+        name: { type: String, validate: util.strLength(64), required: true }
+    }, { _id: false });
     var Comment = mongoose.Schema({
        created: { type: Date, required: true},
        author: {
@@ -47,7 +51,7 @@ module.exports = function (mongoose) {
         modified: { type: Date, required: true },
         text: { type: String, validate: util.strLength(1024) },
         subjectID: String,       // NOTE: Referring to recipe, ingredient, gastronomist or company in Nourriture (3rd party)
-        likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Consumer"}],
+        likes: [Like],
         likeCount: Number,
         comments: [Comment],
         commentCount: Number
@@ -72,6 +76,7 @@ module.exports = function (mongoose) {
         Consumer: mongoose.model("consumer", Consumer),
         Moment: mongoose.model("moment", Moment),
         Comment: mongoose.model("comment", Comment),
+        Like:  mongoose.model("like", Like),
         Rating: mongoose.model("rating", Rating)
     };
 };
