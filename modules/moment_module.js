@@ -62,6 +62,8 @@ module.exports = function (server, models) {
             return; // Response composed and return in function below
         }
 
+        query.sort({created:'descending'});
+
         // Execute query
         query.exec(function(err, moments) {
                 if(!err) {
