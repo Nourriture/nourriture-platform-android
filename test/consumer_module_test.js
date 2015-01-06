@@ -6,7 +6,8 @@ var Expect      = require('chai').expect;
 var Supertest   = require('supertest');  // high-level abstraction for testing HTTP, while still allowing you to drop down to the lower-level API provided by super-agent
 var API         = Supertest('http://localhost:8081');
 var MongoClient = require('mongodb').MongoClient;
-var sampleData  = require("../utilities/sample_data.json");
+var async       = require('async');
+var spawn       = require('child_process').spawn;
 
 before(function(done){
     console.log('BEFORE ANY tests, check whether NodeJS already up and running');
@@ -28,26 +29,49 @@ before(function(done){
 });
 
 describe('Consumer module API tests', function() {
+    var samplesUsed = ["consumers"]; // Collection names of sample data to be used in tests
 
     beforeEach(function(done) {
-        // Insert mock data into MongoDB
-        MongoClient.connect(process.env.dbcon, function(err, connection) {
-            var consumers = connection.collection('consumers');
-            consumers.insert(sampleData.consumers, function() {
-                connection.close();
-                done();
-            });
-        });
+        // Insert sample data into MongoDB
+        async.each(samplesUsed,
+            function(collName, collDone) {
+                var file = "test/samples/" + collName + ".json";
+                var args = ['--db', 'nourriture-android-test', '--collection', collName, file];
+                var mongoimport = spawn('mongoimport', args);
+                mongoimport.on('exit', function (code) {
+                    console.log('mongoimport exited with code ' + code);
+                    collDone();
+                });
+            },
+            // After all sample collections have been inserted, finish up
+            function(err) {
+                if(!err) {
+                    done();
+                } else {
+                    console.log("Failed to insert mock data into MongoDB: " + err);
+                }
+            }
+        );
     });
 
     afterEach(function(done){
-        // Wipe Consumer collection from MongoDB
+        // Wipe sample data from MongoDB
         MongoClient.connect(process.env.dbcon, function(err, connection) {
-            var consumers = connection.collection('consumers');
-            consumers.drop(function() {
-                connection.close();
-                done();
-            });
+            async.each(samplesUsed,
+                // For each sample collection used, drop
+                function(collName, collDone) {
+                    var collection = connection.collection(collName);
+                    collection.drop(collDone);
+                },
+                // After all sample collections have been dropped, finish up
+                function() {
+                    if(!err) {
+                        connection.close();
+                        done();
+                    } else {
+                        console.log("Failed to wipe mock data from MongoDB: " + err);
+                    }
+                });
         });
     });
 
@@ -56,18 +80,19 @@ describe('Consumer module API tests', function() {
             .set('Content-Type', 'application/json')
             .expect(200)
             .end(function(error, response){
-                Expect(response.body).eql(sampleData.consumers);
+                Expect(response.body.length).to.eql(3);
                 done()
             });
     });
 
     it('GET specific consumer', function (done) {
-        var tUser = sampleData.consumers[0].username; // Username of sample user to be retrieved
+        var tUser = "ctverecek"; // Username of sample user to be retrieved
         API.get('/consumer/' + tUser)
             .set('Content-Type', 'application/json')
             .expect(200)
             .end(function(error, response){
-                Expect(response.body).eql(sampleData.consumers[0]);
+                var rConsumer = response.body;
+                Expect(rConsumer.name).to.eql("Pavel Prochazka");
                 done()
             });
     });
@@ -126,7 +151,7 @@ describe('Consumer module API tests', function() {
     });
 
     it('PUT a consumer, with valid name', function (done) {
-        var tUser = sampleData.consumers[0].username; // Username of sample user to be modified
+        var tUser = "ctverecek"; // Username of sample user to be retrieved
         var modification = {name: "Niels Jensen"};
         API.put("/consumer/" + tUser)
             .send(modification)
@@ -150,7 +175,7 @@ describe('Consumer module API tests', function() {
     });
 
     it('PUT a consumer, with a too long name', function (done) {
-        var tUser = sampleData.consumers[0].username; // Username of sample user to be modified
+        var tUser = "ctverecek"; // Username of sample user to be retrieved
         var modification = {name: "JohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohn"};
         API.put("/consumer/" + tUser)
             .send(modification)
@@ -162,7 +187,7 @@ describe('Consumer module API tests', function() {
     });
 
     it('DELETE a consumer', function (done) {
-        var tUser = sampleData.consumers[0].username; // Username of sample user to be deleted
+        var tUser = "ctverecek"; // Username of sample user to be retrieved
         API.delete("/consumer/" + tUser)
             .expect(200)
             .end(function(error, response) {
