@@ -54,6 +54,8 @@ module.exports = function (server, models) {
         // If author parameter specified, use it to filter
         if(req.params.author) {
             query.find({ "author.cId": req.params.author });
+        } else if(req.params.subjectID) {
+            query.find({ subjectID: req.params.subjectID });
         }
 
         // Execute query

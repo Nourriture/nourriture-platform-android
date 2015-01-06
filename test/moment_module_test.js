@@ -104,6 +104,17 @@ describe('Moments module API tests', function() {
             });
     });
 
+    it('GET moments of specific recipe', function (done) {
+        var rId = "6251b1fb84c3f4061a5f4996"; // ID of recipe which moments should be retrieved
+        API.get('/moment?subjectID=' + rId)
+            .set('Content-Type', 'application/json')
+            .expect(200)
+            .end(function(error, response){
+                Expect(response.body.length).to.eql(1);
+                done()
+            });
+    });
+
     it('GET all moments', function (done) {
         API.get('/moment')
             .set('Content-Type', 'application/json')
