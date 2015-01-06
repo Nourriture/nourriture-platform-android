@@ -204,4 +204,48 @@ describe('Consumer module API tests', function() {
                 done();
             });
     });
+
+    it('POST a follow relation to a consumer', function (done) {
+        var cId = "54a688dc7048351b5d2972a3"; // Id of sample consumer to receive follow relation
+        var fId = "54a6893e7048351b5d2972a5"; // Id of sample consumer to be followed
+        API.post("/consumer/" + cId + "/following")
+            .set('Content-Type', 'application/json')
+            .send("\"" + fId + "\"")
+            .expect(200)
+            .end(function(error, response) {
+                var rFollowRelation = response.body;
+                Expect(rFollowRelation._id).to.not.exist();
+                Expect(rFollowRelation.created).to.exist();
+                Expect(rFollowRelation.cId).to.eql("54a6893e7048351b5d2972a5");
+                Expect(rFollowRelation.name).to.eql("Niels Jensen");
+                Expect(rFollowRelation.picture).to.eql("https://avatars2.githubusercontent.com/u/1209767?v=2&s=460");
+                done();
+            });
+    });
+
+    it('DELETE a follow relation from a consumer', function (done) {
+        var cId = "54a688dc7048351b5d2972a3"; // Id of sample consumer to lose follow relation
+        var fId = "54a689007048351b5d2972a4"; // Id of sample consumer to no longer follow
+        API.delete("/consumer/" + cId + "/following/" + fId)
+            .expect(200)
+            .end(function(error, response) {
+                // Well-formed response
+                var rFollowRelation = response.body;
+                Expect(rFollowRelation.created).to.exist();
+                Expect(rFollowRelation.cId).to.eql(fId);
+                Expect(rFollowRelation.name).to.eql("Arnaud Kevin");
+                Expect(rFollowRelation.picture).to.eql("https://avatars3.githubusercontent.com/u/5804525?v=2&s=460");
+
+                // Consumer updated on sub-sequent GET query
+                var tUser = "ctverecek"; // Username of sample user to be retrieved
+                API.get('/consumer/' + tUser)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .end(function(error, response){
+                        var rConsumer = response.body;
+                        Expect(rConsumer.following).has.length.of(0);
+                        done()
+                    });
+            });
+    });
 });

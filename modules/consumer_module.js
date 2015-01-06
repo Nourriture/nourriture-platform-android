@@ -6,6 +6,7 @@
 var fs = require('fs');
 var restify = require('restify');
 var _ = require('lodash');
+var async = require('async');
 
 module.exports = function (server, models, aws) {
 
@@ -132,65 +133,92 @@ module.exports = function (server, models, aws) {
     });
 
     // Create - Following relation from this consumer to another consumer
-    server.post("/consumer/:username/following", function (req, res, next) {
-        models.Consumer.findOne({ username:req.params.username }, { "following":1 }, function(err, consumer) {
-            // Did the database lookup query succeed?
-            if(!err) {
-                // Did we find a consumer with the given username?
-                if(consumer) {
-                    // Is this consumer not following this other consumer already?
-                    var alreadyFollowing = _.any(consumer.following, function(item) {
-                       return item.consumer.toString() == req.body.consumer;
-                    });
-                    if(!alreadyFollowing) {
-                        // Add timestamp and push relation to consumer
-                        req.body.created = new Date;
-                        consumer.following.push(req.body);
-
-                        // Attempt to save the modified consumer
-                        consumer.save(function (err) {
-                            // Did save succeed?
-                            if(!err) {
-                                res.send(req.body);
-                                next();
+    server.post("/consumer/:id/following", function (req, res, next) {
+        async.waterfall([
+            // Retrieve consumer to be followed and compose a follow relation
+            function(callback) {
+                models.Consumer.findOne(
+                    { "_id": req.body },        // Selection
+                    { name: 1, picture: 1 },    // Projection
+                    function(err, consumer) {   // Callback
+                        if(!err) {
+                            if(consumer) {
+                                var newFollowRelation = {
+                                    created: new Date(),
+                                    cId: consumer.id,
+                                    name: consumer.name,
+                                    picture: consumer.picture
+                                };
+                                callback(null, newFollowRelation);
                             } else {
-                                // Did save fail due to a validation error or unexpected error?
-                                if(err.name == "ValidationError") {
-                                    next(new restify.InvalidContentError(err.toString()));
-                                } else {
-                                    console.error("Failed to insert consumer into database:", err);
-                                    next(new restify.InternalError("Failed to insert user due to an unexpected internal error"));
-                                }
+                                callback(new restify.ResourceNotFoundError("The consumer attempted to follow was not found"));
                             }
-                        });
-                    } else {
-                        next(new restify.InvalidContentError("Consumer already following this other consumer"));
+                        } else {
+                            console.error("Failed to retrieve consumer from database:", err);
+                            callback(new restify.InternalError("Failed to insert follow relation due to an unexpected internal error"))
+                        }
                     }
-                } else {
-                    next(new restify.ResourceNotFoundError("No users found with the given username"));
-                }
+                );
+            },
+            // Add follow relation to consumers following set
+            function(newFollowRelation, callback) {
+                models.Consumer.findOneAndUpdate(
+                    { "_id":req.params.id },                                // Selection
+                    { "$addToSet": { "following": newFollowRelation } },    // Update
+                    function(err, consumer) {                               // Callback
+                        if(!err) {
+                            if(consumer) {
+                                callback(null, newFollowRelation);
+                            } else {
+                                callback(new restify.ResourceNotFoundError("No consumer found with the given id"));
+                            }
+                        } else {
+                            console.error("Failed to update consumer in database:", err);
+                            callback(new restify.InternalError("Failed to insert follow relation due to an unexpected internal error"))
+                        }
+                    }
+                );
+            }
+        ], function(err, newFollowRelation) {
+            if(!err) {
+                res.send(newFollowRelation);
+                next();
             } else {
-                console.error("Failed to query database for consumer profile:", err);
-                next(new restify.InternalError("Failed to insert follow relationship due to an unexpected internal error"));
+                next(err);
             }
         });
     });
 
     // Delete - Following relation from this consumer to another consumer
-    server.del('/consumer/:username/following/:target', function(req, res, next) {
-        models.Consumer.findOneAndUpdate({ "username":req.params.username}, { "$pull": { "following": { "consumer": req.params.target } } }, function(err, consumer) {
-            if(!err) {
-                if(consumer) {
-                    res.send(consumer);
-                    next();
+    server.del('/consumer/:id/following/:target', function(req, res, next) {
+        models.Consumer.findOneAndUpdate(
+            { "_id":req.params.id },                         // Selection
+            { "$pull": { "following": { "cId": req.params.target } } }, // Update
+            { "new": false },                                           // Options
+            function(err, consumer) {                                   // Callback
+                if(!err) {
+                    if(consumer) {
+                        // Look up relation in unmodified consumer (NOTE: due to the {new:false} option above we receive the unmodified consumer)
+                        var followRelation = _.find(consumer.toObject().following, function(item) {
+                            return item.cId.toString() == req.params.target;
+                        });
+
+                        // If it was found return it, otherwise it never existed and 404 should be returned
+                        if(followRelation) {
+                            res.send(followRelation);
+                            next();
+                        } else {
+                            next(new restify.ResourceNotFoundError("The consumer was already not following this other consumer"));
+                        }
+                    } else {
+                        next(new restify.ResourceNotFoundError("No consumer found with the given username"));
+                    }
                 } else {
-                    next(new restify.ResourceNotFoundError("No consumer found with the given username"));
+                    console.error("Failed to query database for modifying a specfici consumer:", err);
+                    next(new restify.InternalError("Failed to delete follow relation due to an unexpected internal error"));
                 }
-            } else {
-                console.error("Failed to query database for modifying a specfici consumer:", err);
-                next(new restify.InternalError("Failed to delete follow relation due to an unexpected internal error"));
             }
-        });
+        );
     });
 
     // Create - Consumer picture
