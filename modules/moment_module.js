@@ -5,6 +5,7 @@
 
 var restify = require('restify');
 var _ = require('lodash');
+var async = require('async');
 
 module.exports = function (server, models) {
 
@@ -56,6 +57,9 @@ module.exports = function (server, models) {
             query.find({ "author.cId": req.params.author });
         } else if(req.params.subjectID) {
             query.find({ subjectID: req.params.subjectID });
+        } else if(req.params.followedBy) {
+            momentsFollowedBy(req.params.followedBy, res, next);
+            return; // Response composed and return in function below
         }
 
         // Execute query
@@ -69,6 +73,52 @@ module.exports = function (server, models) {
                 }
             });
     });
+
+    // Utility method for GET /moments above (To keep the code for more basic queries clean)
+    function momentsFollowedBy(id, res, next) {
+        async.waterfall([
+            // Retrieve IDs of consumers followed by the given consumer
+            function(callback) {
+                models.Consumer.findOne({ "_id":id }, { "following.cId": 1 }, function(err, consumer) {
+                    if(!err) {
+                        if(consumer) {
+                            var followingIds = _.pluck(consumer.following, "cId");
+                            callback(null, followingIds);
+                        } else {
+                            callback(new restify.ResourceNotFoundError("No users found with the given username"));
+                        }
+                    } else {
+                        console.error("Failed to query database for consumer profile:", err);
+                        callback(new restify.InternalError("Failed to retrieve moments due to an unexpected internal error"));
+                    }
+                });
+            },
+            // Retrieve moments authored by them
+            function(followingIds, callback) {
+                models.Moment.find({ "author.cId": { $in: followingIds }}, function(err, moments) {
+                    if(!err) {
+                        if(moments) {
+                            callback(null, moments);
+                        } else {
+                            callback(null, []);
+                        }
+                    } else {
+                        console.error("Failed to query database for consumer profile:", err);
+                        callback(new restify.InternalError("Failed to retrieve moments due to an unexpected internal error"));
+                    }
+                });
+            }
+        ],
+        // Respond with result or error
+        function(err, result) {
+            if(!err) {
+                res.send(result);
+                next();
+            } else {
+                next(err);
+            }
+        });
+    }
 
     // Update - Moment
     server.put('/moment/:id', function(req, res, next) {

@@ -115,6 +115,17 @@ describe('Moments module API tests', function() {
             });
     });
 
+    it('GET moments authored by consumers who are followed by a specific consumer', function (done) {
+        var rId = "54a688dc7048351b5d2972a3"; // ID of consumer whose followedBy moments should be retrieved
+        API.get('/moment?followedBy=' + rId)
+            .set('Content-Type', 'application/json')
+            .expect(200)
+            .end(function(error, response){
+                Expect(response.body.length).to.eql(1);
+                done()
+            });
+    });
+
     it('GET all moments', function (done) {
         API.get('/moment')
             .set('Content-Type', 'application/json')
