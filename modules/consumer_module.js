@@ -139,7 +139,7 @@ module.exports = function (server, models, aws) {
             function(callback) {
                 models.Consumer.findOne(
                     { "_id": req.body },        // Selection
-                    { name: 1, picture: 1 },    // Projection
+                    { name: 1, picture: 1, occupation: 1 },    // Projection
                     function(err, consumer) {   // Callback
                         if(!err) {
                             if(consumer) {
@@ -147,7 +147,8 @@ module.exports = function (server, models, aws) {
                                     created: new Date(),
                                     cId: consumer.id,
                                     name: consumer.name,
-                                    picture: consumer.picture
+                                    picture: consumer.picture,
+                                    occupation: consumer.occupation
                                 };
                                 callback(null, newFollowRelation);
                             } else {

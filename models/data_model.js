@@ -12,7 +12,8 @@ module.exports = function (mongoose) {
         created: { type: Date, required: true },
         cId: { type: mongoose.Schema.Types.ObjectId, ref: "consumer", required: true},
         name: { type: String, validate: util.strLength(64), required: true },
-        picture: { type: String, validate: util.strLength(512) }
+        picture: { type: String, validate: util.strLength(512) },
+        occupation: { type: String, validate: util.strLength(128) }
     });
     var Consumer = mongoose.Schema({
         created: { type: Date, required: true },
