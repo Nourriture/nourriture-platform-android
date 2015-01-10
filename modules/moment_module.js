@@ -85,6 +85,7 @@ module.exports = function (server, models) {
                     if(!err) {
                         if(consumer) {
                             var followingIds = _.pluck(consumer.following, "cId");
+                            followingIds.push(consumer._id);
                             callback(null, followingIds);
                         } else {
                             callback(new restify.ResourceNotFoundError("No users found with the given username"));
